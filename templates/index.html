@@ -9,14 +9,13 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header class="glass-header">
             <h1>🤖 GpsirAI LLM</h1>
             <p class="subtitle">AI Models + Utilities — All in One Place</p>
             <p class="developer">By <span>GpsirEra</span> | Developer: <span>Gopal Parmar</span></p>
         </header>
 
-        <!-- ===== AI MODELS SECTION ===== -->
+        <!-- AI MODELS -->
         <h2 class="section-title">🧠 AI Models</h2>
         <div class="model-grid">
             {% for id, model in models.items() %}
@@ -31,7 +30,7 @@
             {% endfor %}
         </div>
 
-        <!-- ===== UTILITIES SECTION ===== -->
+        <!-- UTILITIES -->
         <h2 class="section-title">🎨 Utilities</h2>
         <div class="utilities-grid">
             {% for id, util in utilities.items() %}
@@ -53,14 +52,13 @@
             {% endfor %}
         </div>
 
-        <!-- Footer -->
         <footer>
             <p>⚠️ For educational purposes only</p>
             <p>GpsirAI LLM v2.0 | Built with ☠️ by <span>GpsirEra</span></p>
         </footer>
     </div>
 
-    <!-- ===== CHAT MODAL ===== -->
+    <!-- CHAT MODAL -->
     <div id="chatModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -186,7 +184,7 @@
         }
 
         // ==========================================
-        // UTILITIES
+        // UTILITIES - FIXED IMAGE HANDLING
         // ==========================================
         async function generateUtility(utilityId) {
             const card = document.querySelector(`[data-utility="${utilityId}"]`);
@@ -201,10 +199,18 @@
                 if (data.success) {
                     if (data.type === 'image') {
                         const container = card.querySelector('.utility-image-container');
-                        container.innerHTML = `<img src="${data.image}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;">`;
+                        if (data.image_url) {
+                            // Direct image URL (from JSON response)
+                            container.innerHTML = `<img src="${data.image_url}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;">`;
+                        } else if (data.image) {
+                            // Base64 image
+                            container.innerHTML = `<img src="${data.image}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;">`;
+                        } else {
+                            container.innerHTML = `<div class="utility-placeholder">No image received</div>`;
+                        }
                     } else {
                         const textEl = card.querySelector('.utility-text');
-                        textEl.textContent = data.text;
+                        textEl.textContent = data.text || 'No text received';
                     }
                 } else {
                     alert('Error: ' + (data.error || 'Failed to generate'));

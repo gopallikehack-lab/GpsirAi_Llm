@@ -64,31 +64,36 @@ UTILITIES = {
         'name': 'Random Image',
         'icon': '🖼️',
         'api_url': 'https://r-bots-free-apis.co08.art/api/v1/api/randomimage',
-        'type': 'image'
+        'type': 'image',
+        'response_key': 'responce'  # <-- FIXED: spelling mistake in API
     },
     'randomquotes': {
         'name': 'Random Quotes',
         'icon': '💬',
         'api_url': 'https://r-bots-free-apis.co08.art/api/v1/api/randomquotes',
-        'type': 'text'
+        'type': 'text',
+        'response_key': 'quotes'
     },
     'facts': {
         'name': 'Random Facts',
         'icon': '🧠',
         'api_url': 'https://r-bots-free-apis.co08.art/api/v1/api/facts',
-        'type': 'text'
+        'type': 'text',
+        'response_key': 'fact'
     },
     'waifu': {
         'name': 'Waifu Generator',
         'icon': '🌸',
         'api_url': 'https://r-bots-free-apis.co08.art/api/v1/api/waifu',
-        'type': 'image'
+        'type': 'image',
+        'response_key': None  # raw binary
     },
     'cosplay': {
         'name': 'Cosplay Generator',
         'icon': '🎭',
         'api_url': 'https://r-bots-free-apis.co08.art/api/v1/api/cosplay',
-        'type': 'image'
+        'type': 'image',
+        'response_key': None  # raw binary
     }
 }
 
@@ -138,19 +143,39 @@ def call_ai_api(model_id, query):
 # IMAGE HANDLING - FIXED
 # ============================================================
 
-def fetch_image(url):
-    """Fetch image from API and return as base64"""
+def fetch_image(util):
+    """Fetch image from API - handles both JSON URL and raw binary"""
     try:
-        response = requests.get(url, timeout=30, stream=True)
+        response = requests.get(util['api_url'], timeout=30)
+        
         if response.status_code == 200:
+            # Check if it's JSON with image URL
+            try:
+                data = response.json()
+                # Check for response key (spelled 'responce' in API)
+                if util.get('response_key') and util['response_key'] in data:
+                    image_url = data[util['response_key']]
+                    if image_url.startswith('http'):
+                        return {
+                            'success': True,
+                            'image_url': image_url,
+                            'type': 'url'
+                        }
+            except:
+                pass
+            
+            # If not JSON or no URL, treat as raw binary
             content_type = response.headers.get('Content-Type', 'image/png')
             image_data = response.content
             b64 = base64.b64encode(image_data).decode('utf-8')
             return {
                 'success': True,
-                'data': f"data:{content_type};base64,{b64}"
+                'image': f"data:{content_type};base64,{b64}",
+                'type': 'base64'
             }
+        
         return {'success': False, 'error': f'HTTP {response.status_code}'}
+    
     except Exception as e:
         return {'success': False, 'error': str(e)}
 
@@ -160,7 +185,6 @@ def fetch_image(url):
 
 @app.route('/')
 def index():
-    """All-in-one home page with models + utilities"""
     return render_template('index.html', models=MODELS, utilities=UTILITIES)
 
 @app.route('/api/chat', methods=['POST'])
@@ -186,12 +210,13 @@ def utility_api(utility_id):
     util = UTILITIES[utility_id]
     
     if util['type'] == 'image':
-        result = fetch_image(util['api_url'])
+        result = fetch_image(util)
         if result['success']:
             return jsonify({
                 'success': True,
-                'image': result['data'],
-                'type': 'image'
+                'image': result.get('image'),
+                'image_url': result.get('image_url'),
+                'type': result['type']
             })
         else:
             return jsonify({'success': False, 'error': result['error']}), 500
@@ -200,12 +225,8 @@ def utility_api(utility_id):
             response = requests.get(util['api_url'], timeout=30)
             if response.status_code == 200:
                 data = response.json()
-                if utility_id == 'randomquotes':
-                    text = data.get('quotes', 'No quote available')
-                elif utility_id == 'facts':
-                    text = data.get('fact', 'No fact available')
-                else:
-                    text = str(data)
+                key = util.get('response_key', 'text')
+                text = data.get(key, str(data))
                 return jsonify({
                     'success': True,
                     'text': text,
