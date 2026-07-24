@@ -10,11 +10,13 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Floating Profile Circle -->
     <div id="profileCircle" class="profile-circle" title="Click to open profile">
         <img src="/static/images/profile.png" alt="Developer">
         <div class="pulse-ring"></div>
     </div>
 
+    <!-- Profile Modal -->
     <div id="profileModal" class="profile-modal">
         <div class="profile-modal-content">
             <button class="profile-modal-close" onclick="closeProfile()">✕</button>
@@ -46,18 +48,20 @@
                     <p>🌸 "The only limit to our realization of tomorrow is our doubts of today."</p>
                     <p>— GpsirEra</p>
                 </div>
-                <div class="profile-social">
-                    <a href="https://github.com/gopallikehack-lab" target="_blank">🐙 GitHub</a>
-                    <a href="#" target="_blank">🐦 Twitter</a>
-                    <a href="#" target="_blank">📸 Instagram</a>
-                    <a href="#" target="_blank">💼 LinkedIn</a>
+                <div class="profile-contact">
+                    <p style="color: #a8a8b3; font-size: 0.9rem; margin-bottom: 8px;">📱 Contact me on Telegram</p>
+                    <a href="https://t.me/GPSIRERA" target="_blank" class="contact-btn" style="display: inline-block; padding: 10px 30px; border-radius: 12px; background: linear-gradient(135deg, #0088cc, #00acee); color: #fff; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">
+                        💬 @GPSIRERA
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Main Content -->
     {% block content %}{% endblock %}
 
+    <!-- Footer -->
     <footer>
         <p>⚠️ For educational purposes only</p>
         <p>GpsirAI LLM v2.0 | Built with ☠️ by <span>GpsirEra</span></p>
