@@ -85,7 +85,6 @@
 
 {% block content %}
 <div class="container">
-    <!-- Greeting Section -->
     <div class="greeting-section">
         <h2>🌸 Welcome to GpsirAI</h2>
         <p>Where code meets cherry blossoms</p>
@@ -101,7 +100,6 @@
         <p class="developer">By <span>GpsirEra</span> | Developer: <span>Gopal Parmar</span></p>
     </header>
 
-    <!-- AI MODELS -->
     <h2 class="section-title">🧠 AI Models</h2>
     <div class="model-grid">
         {% for id, model in models.items() %}
@@ -116,7 +114,6 @@
         {% endfor %}
     </div>
 
-    <!-- UTILITIES -->
     <h2 class="section-title">🎨 Utilities</h2>
     <div class="utilities-grid">
         {% for id, util in utilities.items() %}
@@ -143,14 +140,11 @@
         const card = document.querySelector(`[data-utility="${utilityId}"]`);
         const btn = card.querySelector('.utility-btn');
         const type = card.dataset.type;
-        
         btn.textContent = '⏳ Loading...';
         btn.disabled = true;
-
         try {
             const response = await fetch(`/api/utility/${utilityId}`);
             const data = await response.json();
-
             if (data.success) {
                 if (type === 'image') {
                     const container = card.querySelector('.utility-image-container');
@@ -178,7 +172,6 @@
         } catch (error) {
             alert('Network error: ' + error.message);
         }
-
         btn.textContent = '🔄 Generate';
         btn.disabled = false;
     }

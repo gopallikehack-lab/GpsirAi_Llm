@@ -10,13 +10,11 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Floating Profile Circle -->
     <div id="profileCircle" class="profile-circle" title="Click to open profile">
         <img src="/static/images/profile.png" alt="Developer">
         <div class="pulse-ring"></div>
     </div>
 
-    <!-- Profile Modal -->
     <div id="profileModal" class="profile-modal">
         <div class="profile-modal-content">
             <button class="profile-modal-close" onclick="closeProfile()">✕</button>
@@ -58,16 +56,12 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     {% block content %}{% endblock %}
 
-    <!-- Footer (hidden on chat pages) -->
-    {% block footer %}
     <footer>
         <p>⚠️ For educational purposes only</p>
         <p>GpsirAI LLM v2.0 | Built with ☠️ by <span>GpsirEra</span></p>
     </footer>
-    {% endblock %}
 
     <script src="/static/js/float-circle.js"></script>
     <script>

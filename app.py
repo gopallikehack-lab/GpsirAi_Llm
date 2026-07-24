@@ -13,17 +13,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'gpsirai_super_secret_key_2026')
 CORS(app)
 
-# ============================================================
-# HUGGING FACE DATASET CONFIG (from environment)
-# ============================================================
-
 HF_TOKEN = os.environ.get('HF_TOKEN', '')
 HF_DATASET = os.environ.get('HF_DATASET', 'gopallikehack/MULTIMEDIA')
-HF_API_URL = f'https://huggingface.co/api/datasets/{HF_DATASET}'
-
-# ============================================================
-# AI MODEL CONFIGURATION
-# ============================================================
 
 MODELS = {
     'gpt-5': {
@@ -64,10 +55,6 @@ MODELS = {
     }
 }
 
-# ============================================================
-# UTILITIES
-# ============================================================
-
 UTILITIES = {
     'randomimage': {
         'name': 'Random Image',
@@ -106,10 +93,6 @@ UTILITIES = {
     }
 }
 
-# ============================================================
-# CHAT HISTORY STORAGE (Session + HF)
-# ============================================================
-
 def get_user_id():
     if 'user_id' not in session:
         session['user_id'] = hashlib.md5(str(time.time()).encode()).hexdigest()[:16]
@@ -142,25 +125,17 @@ def delete_chat_history(model_id):
     except:
         return False
 
-# ============================================================
-# AI CHAT FUNCTION
-# ============================================================
-
 def call_ai_api(model_id, query):
     model = MODELS.get(model_id)
     if not model:
         return {'success': False, 'error': 'Model not found'}
-    
     try:
         url = model['api_url']
         param = model['param']
         full_url = f"{url}?{param}={quote(query)}"
-        
         response = requests.get(full_url, timeout=60)
-        
         if response.status_code == 200:
             data = response.json()
-            
             if model_id == 'gpt-5':
                 text = data.get('results', 'No response')
             elif model_id == 'deep-ai':
@@ -171,7 +146,6 @@ def call_ai_api(model_id, query):
                 text = data.get('results', {}).get('text', 'No response')
             else:
                 text = str(data)
-            
             return {
                 'success': True,
                 'response': text,
@@ -180,18 +154,12 @@ def call_ai_api(model_id, query):
             }
         else:
             return {'success': False, 'error': f'API Error: {response.status_code}'}
-    
     except Exception as e:
         return {'success': False, 'error': str(e)}
-
-# ============================================================
-# IMAGE HANDLING
-# ============================================================
 
 def fetch_image(util):
     try:
         response = requests.get(util['api_url'], timeout=30)
-        
         if response.status_code == 200:
             try:
                 data = response.json()
@@ -205,7 +173,6 @@ def fetch_image(util):
                         }
             except:
                 pass
-            
             content_type = response.headers.get('Content-Type', 'image/png')
             image_data = response.content
             b64 = base64.b64encode(image_data).decode('utf-8')
@@ -214,15 +181,9 @@ def fetch_image(util):
                 'image': f"data:{content_type};base64,{b64}",
                 'type': 'base64'
             }
-        
         return {'success': False, 'error': f'HTTP {response.status_code}'}
-    
     except Exception as e:
         return {'success': False, 'error': str(e)}
-
-# ============================================================
-# ROUTES
-# ============================================================
 
 @app.route('/')
 def index():
@@ -232,7 +193,6 @@ def index():
 def chat_page(model_id):
     if model_id not in MODELS:
         return render_template('index.html', models=MODELS, utilities=UTILITIES)
-    
     messages = load_chat_history(model_id)
     return render_template('chat.html', model=MODELS[model_id], model_id=model_id, messages=messages)
 
@@ -241,18 +201,13 @@ def chat_api():
     data = request.get_json()
     model_id = data.get('model', 'gpt-5')
     query = data.get('query', '').strip()
-    
     if not query:
         return jsonify({'success': False, 'error': 'Query cannot be empty'}), 400
-    
     if model_id not in MODELS:
         return jsonify({'success': False, 'error': 'Invalid model'}), 400
-    
     messages = load_chat_history(model_id)
     messages.append({'role': 'user', 'content': query})
-    
     result = call_ai_api(model_id, query)
-    
     if result.get('success'):
         messages.append({'role': 'assistant', 'content': result['response']})
         save_chat_history(model_id, messages)
@@ -262,14 +217,12 @@ def chat_api():
         messages.append({'role': 'assistant', 'content': error_msg})
         save_chat_history(model_id, messages)
         result['history'] = messages
-    
     return jsonify(result)
 
 @app.route('/api/chat/history/<model_id>', methods=['GET'])
 def get_chat_history(model_id):
     if model_id not in MODELS:
         return jsonify({'error': 'Invalid model'}), 400
-    
     messages = load_chat_history(model_id)
     return jsonify({'success': True, 'messages': messages})
 
@@ -277,27 +230,16 @@ def get_chat_history(model_id):
 def delete_chat_history_route(model_id):
     if model_id not in MODELS:
         return jsonify({'error': 'Invalid model'}), 400
-    
     if delete_chat_history(model_id):
         return jsonify({'success': True, 'message': 'History deleted'})
     else:
         return jsonify({'success': False, 'error': 'Failed to delete'}), 500
 
-@app.route('/api/chat/clear', methods=['POST'])
-def clear_all_chat_history():
-    data = request.get_json()
-    model_id = data.get('model_id')
-    if model_id and model_id in MODELS:
-        delete_chat_history(model_id)
-    return jsonify({'success': True})
-
 @app.route('/api/utility/<utility_id>')
 def utility_api(utility_id):
     if utility_id not in UTILITIES:
         return jsonify({'error': 'Utility not found'}), 404
-    
     util = UTILITIES[utility_id]
-    
     if util['type'] == 'image':
         result = fetch_image(util)
         if result['success']:
