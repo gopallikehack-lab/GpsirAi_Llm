@@ -80,6 +80,80 @@
     .utility-btn:hover {
         background: rgba(255, 107, 107, 0.2) !important;
     }
+    /* Gallery Styles */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 15px;
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 4px;
+    }
+    .gallery-grid::-webkit-scrollbar {
+        width: 4px;
+    }
+    .gallery-grid::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .gallery-grid::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+    .gallery-item {
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    .gallery-item:hover {
+        transform: scale(1.02);
+        border-color: rgba(255, 107, 107, 0.3);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .gallery-item img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+    }
+    .gallery-item .gallery-info {
+        padding: 8px 12px;
+        font-size: 0.7rem;
+        color: #a8a8b3;
+        background: rgba(0,0,0,0.5);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        backdrop-filter: blur(10px);
+    }
+    .gallery-item .gallery-info .uploader {
+        color: #ffb3b3;
+        font-weight: 600;
+    }
+    .gallery-placeholder {
+        color: #6c6c80;
+        font-size: 0.9rem;
+        padding: 30px;
+        text-align: center;
+    }
+    .gallery-container {
+        min-height: 200px;
+        background: rgba(0,0,0,0.2);
+        border-radius: 12px;
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+    .utility-card[data-type="gallery"] .utility-btn {
+        background: linear-gradient(135deg, #ff6b6b, #ff8a8a) !important;
+        color: #fff !important;
+    }
+    .utility-card[data-type="gallery"] .utility-btn:hover {
+        box-shadow: 0 0 30px rgba(255, 107, 107, 0.3) !important;
+    }
 </style>
 {% endblock %}
 
@@ -120,7 +194,11 @@
         <div class="utility-card" data-utility="{{ id }}" data-type="{{ util.type }}">
             <div class="utility-icon">{{ util.icon }}</div>
             <h3>{{ util.name }}</h3>
-            {% if util.type == 'image' %}
+            {% if util.type == 'gallery' %}
+            <div class="gallery-container" id="gallery-{{ id }}">
+                <div class="gallery-placeholder">🌸 Click Generate to load images</div>
+            </div>
+            {% elif util.type == 'image' %}
             <div class="utility-image-container" id="image-{{ id }}">
                 <div class="utility-placeholder">🌸 Click Generate to load</div>
             </div>
@@ -140,13 +218,35 @@
         const card = document.querySelector(`[data-utility="${utilityId}"]`);
         const btn = card.querySelector('.utility-btn');
         const type = card.dataset.type;
+        
         btn.textContent = '⏳ Loading...';
         btn.disabled = true;
+
         try {
             const response = await fetch(`/api/utility/${utilityId}`);
             const data = await response.json();
+
             if (data.success) {
-                if (type === 'image') {
+                if (type === 'gallery') {
+                    const container = card.querySelector('.gallery-container');
+                    if (data.data && data.data.length > 0) {
+                        let html = '<div class="gallery-grid">';
+                        data.data.slice(0, 30).forEach(item => {
+                            html += `
+                                <div class="gallery-item">
+                                    <img src="${item.image}" alt="${item.title || 'Image'}" loading="lazy">
+                                    <div class="gallery-info">
+                                        <span class="uploader">${item.uploader?.full_name || 'Unknown'}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `<div class="gallery-placeholder">🌸 No images found</div>`;
+                    }
+                } else if (type === 'image') {
                     const container = card.querySelector('.utility-image-container');
                     if (data.image_url) {
                         container.innerHTML = `<img src="${data.image_url}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;background:#000;">`;
@@ -172,6 +272,7 @@
         } catch (error) {
             alert('Network error: ' + error.message);
         }
+
         btn.textContent = '🔄 Generate';
         btn.disabled = false;
     }

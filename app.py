@@ -90,6 +90,13 @@ UTILITIES = {
         'api_url': 'https://r-bots-free-apis.co08.art/api/v1/api/cosplay',
         'type': 'image',
         'response_key': None
+    },
+    'pinterest': {
+        'name': 'Text to Image',
+        'icon': '🎨',
+        'api_url': 'https://r-bots-free-apis.co08.art/api/v1/api/pinterest?q=anime',
+        'type': 'gallery',
+        'response_key': 'data'
     }
 }
 
@@ -185,6 +192,21 @@ def fetch_image(util):
     except Exception as e:
         return {'success': False, 'error': str(e)}
 
+def fetch_gallery(util):
+    try:
+        response = requests.get(util['api_url'], timeout=30)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('status') and data.get('data'):
+                return {
+                    'success': True,
+                    'data': data['data'],
+                    'type': 'gallery'
+                }
+        return {'success': False, 'error': 'Failed to fetch gallery'}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
 @app.route('/')
 def index():
     return render_template('index.html', models=MODELS, utilities=UTILITIES)
@@ -240,7 +262,19 @@ def utility_api(utility_id):
     if utility_id not in UTILITIES:
         return jsonify({'error': 'Utility not found'}), 404
     util = UTILITIES[utility_id]
-    if util['type'] == 'image':
+    
+    if util['type'] == 'gallery':
+        result = fetch_gallery(util)
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'data': result['data'],
+                'type': 'gallery'
+            })
+        else:
+            return jsonify({'success': False, 'error': result['error']}), 500
+    
+    elif util['type'] == 'image':
         result = fetch_image(util)
         if result['success']:
             return jsonify({
