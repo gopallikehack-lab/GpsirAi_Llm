@@ -25,7 +25,7 @@
                 </div>
                 <h3>{{ model.name }}</h3>
                 <p>{{ model.description }}</p>
-                <button class="model-btn" onclick="openChat('{{ id }}')">💬 Chat</button>
+                <a href="/chat/{{ id }}" class="model-btn" style="background:linear-gradient(135deg, {{ model.color }}, {{ model.accent }});">💬 Chat</a>
             </div>
             {% endfor %}
         </div>
@@ -57,134 +57,7 @@
         </footer>
     </div>
 
-    <!-- CHAT MODAL -->
-    <div id="chatModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <img id="modalLogo" src="" alt="" style="width:32px;height:32px;object-fit:contain;">
-                    <span id="modalModelName">GPT-5</span>
-                </div>
-                <button class="modal-close" onclick="closeChat()">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="chat-box" id="chatBox">
-                    <div class="chat-message bot">
-                        <div class="message-content">👋 Hello! Ask me anything.</div>
-                    </div>
-                </div>
-                <div class="chat-input">
-                    <input type="text" id="chatInput" placeholder="Type your message..." autofocus>
-                    <button id="sendBtn">➤ Send</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // ==========================================
-        // CHAT MODAL
-        // ==========================================
-        let currentModel = 'gpt-5';
-        let modelNames = {};
-        {% for id, model in models.items() %}
-        modelNames['{{ id }}'] = '{{ model.name }}';
-        {% endfor %}
-
-        function openChat(modelId) {
-            currentModel = modelId;
-            document.getElementById('modalModelName').textContent = modelNames[modelId];
-            document.getElementById('modalLogo').src = `/static/logos/${modelId}.png`;
-            document.getElementById('chatModal').classList.add('active');
-            document.getElementById('chatBox').innerHTML = `
-                <div class="chat-message bot">
-                    <div class="message-content">👋 Hello! I'm ${modelNames[modelId]}. Ask me anything!</div>
-                </div>
-            `;
-            document.getElementById('chatInput').value = '';
-            document.getElementById('chatInput').focus();
-        }
-
-        function closeChat() {
-            document.getElementById('chatModal').classList.remove('active');
-        }
-
-        document.getElementById('chatModal').addEventListener('click', function(e) {
-            if (e.target === this) closeChat();
-        });
-
-        document.getElementById('sendBtn').addEventListener('click', sendMessage);
-        document.getElementById('chatInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const query = input.value.trim();
-            if (!query) return;
-
-            const chatBox = document.getElementById('chatBox');
-            
-            chatBox.innerHTML += `
-                <div class="chat-message user">
-                    <div class="message-content">${query}</div>
-                </div>
-            `;
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            input.value = '';
-            input.disabled = true;
-            document.getElementById('sendBtn').disabled = true;
-
-            const loadingId = Date.now();
-            chatBox.innerHTML += `
-                <div class="chat-message bot" id="loading-${loadingId}">
-                    <div class="message-content">⏳ Thinking...</div>
-                </div>
-            `;
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: currentModel, query: query })
-                });
-
-                const data = await response.json();
-                document.getElementById(`loading-${loadingId}`).remove();
-
-                if (data.success) {
-                    chatBox.innerHTML += `
-                        <div class="chat-message bot">
-                            <div class="message-content">${data.response}</div>
-                        </div>
-                    `;
-                } else {
-                    chatBox.innerHTML += `
-                        <div class="chat-message bot error">
-                            <div class="message-content">❌ Error: ${data.error || 'Unknown error'}</div>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                document.getElementById(`loading-${loadingId}`).remove();
-                chatBox.innerHTML += `
-                    <div class="chat-message bot error">
-                        <div class="message-content">❌ Network error: ${error.message}</div>
-                    </div>
-                `;
-            }
-
-            chatBox.scrollTop = chatBox.scrollHeight;
-            input.disabled = false;
-            document.getElementById('sendBtn').disabled = false;
-            input.focus();
-        }
-
-        // ==========================================
-        // UTILITIES - FIXED
-        // ==========================================
         async function generateUtility(utilityId) {
             const card = document.querySelector(`[data-utility="${utilityId}"]`);
             const btn = card.querySelector('.utility-btn');
