@@ -1,106 +1,186 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GpsirAI LLM - AI Aggregator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <div class="container">
-        <header class="glass-header">
-            <h1>🤖 GpsirAI LLM</h1>
-            <p class="subtitle">AI Models + Utilities — All in One Place</p>
-            <p class="developer">By <span>GpsirEra</span> | Developer: <span>Gopal Parmar</span></p>
-        </header>
+{% extends "base.html" %}
 
-        <!-- AI MODELS -->
-        <h2 class="section-title">🧠 AI Models</h2>
-        <div class="model-grid">
-            {% for id, model in models.items() %}
-            <div class="model-card" style="--model-color: {{ model.color }}; --accent-color: {{ model.accent }};">
-                <div class="model-logo">
-                    <img src="/static/logos/{{ model.logo }}" alt="{{ model.name }}" loading="lazy">
-                </div>
-                <h3>{{ model.name }}</h3>
-                <p>{{ model.description }}</p>
-                <a href="/chat/{{ id }}" class="model-btn" style="background:linear-gradient(135deg, {{ model.color }}, {{ model.accent }});">💬 Chat</a>
-            </div>
-            {% endfor %}
+{% block title %}🌸 GpsirAI LLM - Cherry Blossom AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #1a0a0a, #2d1b1b, #1a0a0a);
+    }
+    .glass-header {
+        background: rgba(255, 182, 193, 0.08);
+        border: 1px solid rgba(255, 182, 193, 0.1);
+    }
+    .glass-header h1 {
+        background: linear-gradient(135deg, #ff8a8a, #ff6b6b, #ffb3b3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 60px rgba(255, 107, 107, 0.15);
+    }
+    .model-card {
+        background: rgba(255, 182, 193, 0.05);
+        border: 1px solid rgba(255, 182, 193, 0.08);
+    }
+    .model-card:hover {
+        border-color: #ff6b6b;
+        box-shadow: 0 20px 50px rgba(255, 107, 107, 0.1);
+    }
+    .utility-card {
+        background: rgba(255, 182, 193, 0.05);
+        border: 1px solid rgba(255, 182, 193, 0.08);
+    }
+    .utility-card:hover {
+        box-shadow: 0 20px 50px rgba(255, 107, 107, 0.08);
+    }
+    .section-title {
+        color: #ffb3b3;
+        text-shadow: 0 0 30px rgba(255, 107, 107, 0.1);
+    }
+    .greeting-section {
+        text-align: center;
+        padding: 20px 0 30px;
+    }
+    .greeting-section h2 {
+        font-family: 'Dancing Script', cursive;
+        font-size: 2.8rem;
+        background: linear-gradient(135deg, #ffb3b3, #ff8a8a, #ff6b6b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+    .greeting-section p {
+        color: #d4a0a0;
+        font-size: 1.1rem;
+        font-style: italic;
+        font-family: 'Dancing Script', cursive;
+    }
+    .greeting-quote {
+        margin-top: 10px;
+        padding: 15px 20px;
+        background: rgba(255, 182, 193, 0.05);
+        border-radius: 20px;
+        display: inline-block;
+        border-left: 3px solid rgba(255, 107, 107, 0.3);
+    }
+    .greeting-quote p {
+        font-family: 'Dancing Script', cursive;
+        color: #ffc8c8;
+        font-size: 1.2rem;
+    }
+    .greeting-quote span {
+        color: #a8a8b3;
+        font-size: 0.9rem;
+    }
+    .model-btn {
+        background: linear-gradient(135deg, #ff6b6b, #ff8a8a) !important;
+    }
+    .model-btn:hover {
+        box-shadow: 0 0 40px rgba(255, 107, 107, 0.3) !important;
+    }
+    .utility-btn:hover {
+        background: rgba(255, 107, 107, 0.2) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Greeting Section -->
+    <div class="greeting-section">
+        <h2>🌸 Welcome to GpsirAI</h2>
+        <p>Where code meets cherry blossoms</p>
+        <div class="greeting-quote">
+            <p>"🌸 The only limit to our realization of tomorrow is our doubts of today."</p>
+            <span>— GpsirEra</span>
         </div>
-
-        <!-- UTILITIES -->
-        <h2 class="section-title">🎨 Utilities</h2>
-        <div class="utilities-grid">
-            {% for id, util in utilities.items() %}
-            <div class="utility-card" data-utility="{{ id }}" data-type="{{ util.type }}">
-                <div class="utility-icon">{{ util.icon }}</div>
-                <h3>{{ util.name }}</h3>
-                {% if util.type == 'image' %}
-                <div class="utility-image-container" id="image-{{ id }}">
-                    <div class="utility-placeholder">Click Generate to load</div>
-                </div>
-                {% else %}
-                <div class="utility-text-container" id="text-{{ id }}">
-                    <p class="utility-text">Click Generate to load</p>
-                </div>
-                {% endif %}
-                <button onclick="generateUtility('{{ id }}')" class="utility-btn">🔄 Generate</button>
-            </div>
-            {% endfor %}
-        </div>
-
-        <footer>
-            <p>⚠️ For educational purposes only</p>
-            <p>GpsirAI LLM v2.0 | Built with ☠️ by <span>GpsirEra</span></p>
-        </footer>
     </div>
 
-    <script>
-        async function generateUtility(utilityId) {
-            const card = document.querySelector(`[data-utility="${utilityId}"]`);
-            const btn = card.querySelector('.utility-btn');
-            const type = card.dataset.type;
-            
-            btn.textContent = '⏳ Loading...';
-            btn.disabled = true;
+    <header class="glass-header">
+        <h1>🤖 GpsirAI LLM</h1>
+        <p class="subtitle">AI Models + Utilities — All in One Place</p>
+        <p class="developer">By <span>GpsirEra</span> | Developer: <span>Gopal Parmar</span></p>
+    </header>
 
-            try {
-                const response = await fetch(`/api/utility/${utilityId}`);
-                const data = await response.json();
+    <!-- AI MODELS -->
+    <h2 class="section-title">🧠 AI Models</h2>
+    <div class="model-grid">
+        {% for id, model in models.items() %}
+        <div class="model-card" style="--model-color: {{ model.color }}; --accent-color: {{ model.accent }};">
+            <div class="model-logo">
+                <img src="/static/logos/{{ model.logo }}" alt="{{ model.name }}" loading="lazy">
+            </div>
+            <h3>{{ model.name }}</h3>
+            <p>{{ model.description }}</p>
+            <a href="/chat/{{ id }}" class="model-btn" style="background:linear-gradient(135deg, {{ model.color }}, {{ model.accent }});">💬 Chat</a>
+        </div>
+        {% endfor %}
+    </div>
 
-                if (data.success) {
-                    if (type === 'image') {
-                        const container = card.querySelector('.utility-image-container');
-                        if (data.image_url) {
-                            container.innerHTML = `<img src="${data.image_url}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;background:#000;">`;
-                        } else if (data.image) {
-                            container.innerHTML = `<img src="${data.image}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;background:#000;">`;
-                        } else {
-                            container.innerHTML = `<div class="utility-placeholder">⚠️ No image received</div>`;
-                        }
+    <!-- UTILITIES -->
+    <h2 class="section-title">🎨 Utilities</h2>
+    <div class="utilities-grid">
+        {% for id, util in utilities.items() %}
+        <div class="utility-card" data-utility="{{ id }}" data-type="{{ util.type }}">
+            <div class="utility-icon">{{ util.icon }}</div>
+            <h3>{{ util.name }}</h3>
+            {% if util.type == 'image' %}
+            <div class="utility-image-container" id="image-{{ id }}">
+                <div class="utility-placeholder">🌸 Click Generate to load</div>
+            </div>
+            {% else %}
+            <div class="utility-text-container" id="text-{{ id }}">
+                <p class="utility-text">🌸 Click Generate to load</p>
+            </div>
+            {% endif %}
+            <button onclick="generateUtility('{{ id }}')" class="utility-btn">🔄 Generate</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    async function generateUtility(utilityId) {
+        const card = document.querySelector(`[data-utility="${utilityId}"]`);
+        const btn = card.querySelector('.utility-btn');
+        const type = card.dataset.type;
+        
+        btn.textContent = '⏳ Loading...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/utility/${utilityId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                if (type === 'image') {
+                    const container = card.querySelector('.utility-image-container');
+                    if (data.image_url) {
+                        container.innerHTML = `<img src="${data.image_url}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;background:#000;">`;
+                    } else if (data.image) {
+                        container.innerHTML = `<img src="${data.image}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;background:#000;">`;
                     } else {
-                        const container = card.querySelector('.utility-text-container');
-                        if (container) {
-                            const textEl = container.querySelector('.utility-text');
-                            if (textEl) {
-                                textEl.textContent = data.text || 'No text received';
-                            } else {
-                                container.innerHTML = `<p class="utility-text">${data.text || 'No text received'}</p>`;
-                            }
-                        }
+                        container.innerHTML = `<div class="utility-placeholder">🌸 No image received</div>`;
                     }
                 } else {
-                    alert('Error: ' + (data.error || 'Failed to generate'));
+                    const container = card.querySelector('.utility-text-container');
+                    if (container) {
+                        const textEl = container.querySelector('.utility-text');
+                        if (textEl) {
+                            textEl.textContent = data.text || '🌸 No text received';
+                        } else {
+                            container.innerHTML = `<p class="utility-text">${data.text || '🌸 No text received'}</p>`;
+                        }
+                    }
                 }
-            } catch (error) {
-                alert('Network error: ' + error.message);
+            } else {
+                alert('Error: ' + (data.error || 'Failed to generate'));
             }
-
-            btn.textContent = '🔄 Generate';
-            btn.disabled = false;
+        } catch (error) {
+            alert('Network error: ' + error.message);
         }
-    </script>
-</body>
-</html>
+
+        btn.textContent = '🔄 Generate';
+        btn.disabled = false;
+    }
+</script>
+{% endblock %}

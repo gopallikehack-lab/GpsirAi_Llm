@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GpsirAI LLM{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/float-circle.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Floating Profile Circle -->
+    <div id="profileCircle" class="profile-circle" title="Click to open profile">
+        <img src="/static/images/profile.png" alt="Developer">
+        <div class="pulse-ring"></div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="profile-modal">
+        <div class="profile-modal-content">
+            <button class="profile-modal-close" onclick="closeProfile()">✕</button>
+            <div class="profile-modal-header">
+                <img src="/static/images/profile.png" alt="Gopal Parmar" class="profile-modal-avatar">
+                <h2>🌸 Gopal Parmar</h2>
+                <p class="profile-tagline">"Coding is poetry, and I'm the poet."</p>
+            </div>
+            <div class="profile-modal-body">
+                <div class="profile-bio">
+                    <p>✨ 17 years old • Full-Stack AI Developer</p>
+                    <p>🌐 Building the future, one line of code at a time</p>
+                </div>
+                <div class="profile-skills">
+                    <span class="skill-tag">🧠 AI Expert</span>
+                    <span class="skill-tag">📊 Data Science</span>
+                    <span class="skill-tag">💻 Coding Expert</span>
+                    <span class="skill-tag">🔒 Ethical Hacking</span>
+                    <span class="skill-tag">🌐 Web Developer</span>
+                    <span class="skill-tag">⚡ API Builder</span>
+                    <span class="skill-tag">🐍 Python Master</span>
+                    <span class="skill-tag">☕ JavaScript Ninja</span>
+                    <span class="skill-tag">🤖 Machine Learning</span>
+                    <span class="skill-tag">📱 App Developer</span>
+                    <span class="skill-tag">🔧 DevOps Engineer</span>
+                    <span class="skill-tag">📡 IoT Explorer</span>
+                </div>
+                <div class="profile-quote">
+                    <p>🌸 "The only limit to our realization of tomorrow is our doubts of today."</p>
+                    <p>— GpsirEra</p>
+                </div>
+                <div class="profile-social">
+                    <a href="https://github.com/gopallikehack-lab" target="_blank">🐙 GitHub</a>
+                    <a href="#" target="_blank">🐦 Twitter</a>
+                    <a href="#" target="_blank">📸 Instagram</a>
+                    <a href="#" target="_blank">💼 LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer>
+        <p>⚠️ For educational purposes only</p>
+        <p>GpsirAI LLM v2.0 | Built with ☠️ by <span>GpsirEra</span></p>
+    </footer>
+
+    <script src="/static/js/float-circle.js"></script>
+    <script>
+        function openProfile() {
+            document.getElementById('profileModal').classList.add('active');
+        }
+        function closeProfile() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+        document.getElementById('profileModal').addEventListener('click', function(e) {
+            if (e.target === this) closeProfile();
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

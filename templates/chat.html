@@ -1,208 +1,220 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ model.name }} - GpsirAI Chat</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/chat.css">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        .chat-app {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: radial-gradient(ellipse at center, #0a0a1a 0%, #050510 100%);
-        }
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 25px 10px;
-        }
-        .chat-input-container {
-            flex-shrink: 0;
-            padding: 15px 25px 20px;
-            background: rgba(255,255,255,0.02);
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .encryption-banner {
-            background: rgba(16, 163, 127, 0.15);
-            border-bottom: 1px solid rgba(16, 163, 127, 0.2);
-            padding: 8px 20px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #a8a8b3;
-            flex-shrink: 0;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}{{ model.name }} - Cherry Blossom Chat{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #1a0a0a, #2d1b1b, #1a0a0a);
+    }
+    .encryption-banner {
+        background: rgba(255, 182, 193, 0.08);
+        border-bottom: 1px solid rgba(255, 182, 193, 0.1);
+    }
+    .encryption-banner strong {
+        color: #ff8a8a;
+    }
+    .chat-header {
+        background: rgba(255, 182, 193, 0.05);
+        border-bottom: 1px solid rgba(255, 182, 193, 0.08);
+    }
+    .chat-app {
+        background: linear-gradient(135deg, #1a0a0a, #2d1b1b, #1a0a0a);
+    }
+    .chat-msg.bot .msg-content {
+        background: rgba(255, 182, 193, 0.08);
+        border: 1px solid rgba(255, 182, 193, 0.08);
+        color: #ffc8c8;
+    }
+    .chat-msg.user .msg-content {
+        background: linear-gradient(135deg, #ff6b6b, #ff8a8a);
+        color: #fff;
+    }
+    .send-btn {
+        background: linear-gradient(135deg, #ff6b6b, #ff8a8a) !important;
+    }
+    .send-btn:hover {
+        box-shadow: 0 0 40px rgba(255, 107, 107, 0.3) !important;
+    }
+    .chat-input-wrapper input:focus {
+        border-color: #ff6b6b !important;
+        box-shadow: 0 0 30px rgba(255, 107, 107, 0.1) !important;
+    }
+    .footer-note {
+        color: #ffb3b3;
+    }
+    .footer-encrypt {
+        color: #ff8a8a;
+    }
+    .header-btn:hover {
+        background: rgba(255, 107, 107, 0.15) !important;
+        color: #fff !important;
+    }
+    .back-btn:hover {
+        background: rgba(255, 107, 107, 0.15) !important;
+        color: #fff !important;
+    }
+    .model-status {
+        color: #ff8a8a !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-app">
     <div class="encryption-banner">
         🔒 Your chat is <strong>end-to-end encrypted</strong> and private. Messages are stored securely.
     </div>
 
-    <div class="chat-app">
-        <div class="chat-header" style="--model-color: {{ model.color }}; --accent-color: {{ model.accent }};">
-            <div class="header-left">
-                <a href="/" class="back-btn">← Home</a>
-                <img src="/static/logos/{{ model.logo }}" alt="{{ model.name }}" class="header-logo">
-                <div>
-                    <h2>{{ model.name }}</h2>
-                    <span class="model-status">● Online</span>
-                </div>
-            </div>
-            <div class="header-right">
-                <button class="header-btn" onclick="clearHistory()" title="Delete all messages">🗑️ Delete All</button>
-                <button class="header-btn" onclick="exportChat()" title="Export chat">📥 Export</button>
+    <div class="chat-header" style="--model-color: {{ model.color }}; --accent-color: {{ model.accent }};">
+        <div class="header-left">
+            <a href="/" class="back-btn">← Home</a>
+            <img src="/static/logos/{{ model.logo }}" alt="{{ model.name }}" class="header-logo">
+            <div>
+                <h2 style="color: #ffb3b3;">{{ model.name }}</h2>
+                <span class="model-status">● Online</span>
             </div>
         </div>
-
-        <div class="chat-messages" id="chatMessages">
-            {% if messages %}
-                {% for msg in messages %}
-                <div class="chat-msg {{ msg.role }}">
-                    <div class="msg-content">{{ msg.content }}</div>
-                    <div class="msg-time">{{ msg.time or 'Just now' }}</div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="chat-msg bot">
-                    <div class="msg-content">👋 Welcome to {{ model.name }}! Ask me anything. Your chat is private and encrypted.</div>
-                </div>
-            {% endif %}
-            <div id="typingIndicator" class="chat-msg bot" style="display:none;">
-                <div class="msg-content">⏳ <span class="typing-dots">...</span></div>
-            </div>
-        </div>
-
-        <div class="chat-input-container">
-            <div class="chat-input-wrapper">
-                <input type="text" id="chatInput" placeholder="Type your message..." autofocus>
-                <button id="sendBtn" class="send-btn" style="--model-color: {{ model.color }}; --accent-color: {{ model.accent }};">
-                    ➤ Send
-                </button>
-            </div>
-            <div class="chat-footer">
-                <span class="footer-note">⚠️ If error occurs, please try again.</span>
-                <span class="footer-encrypt">🔒 Encrypted</span>
-            </div>
+        <div class="header-right">
+            <button class="header-btn" onclick="clearHistory()" title="Delete all messages">🗑️ Delete All</button>
+            <button class="header-btn" onclick="exportChat()" title="Export chat">📥 Export</button>
         </div>
     </div>
 
-    <script>
-        const modelId = '{{ model_id }}';
-        const modelName = '{{ model.name }}';
-        let isTyping = false;
+    <div class="chat-messages" id="chatMessages">
+        {% if messages %}
+            {% for msg in messages %}
+            <div class="chat-msg {{ msg.role }}">
+                <div class="msg-content">{{ msg.content }}</div>
+                <div class="msg-time">{{ msg.time or 'Just now' }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="chat-msg bot">
+                <div class="msg-content">🌸 Welcome to {{ model.name }}! Ask me anything. Your chat is private and encrypted.</div>
+            </div>
+        {% endif %}
+        <div id="typingIndicator" class="chat-msg bot" style="display:none;">
+            <div class="msg-content">⏳ <span class="typing-dots">...</span></div>
+        </div>
+    </div>
 
-        function appendMessage(role, content) {
-            const container = document.getElementById('chatMessages');
-            const time = new Date().toLocaleTimeString();
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `chat-msg ${role}`;
-            msgDiv.innerHTML = `
-                <div class="msg-content">${content}</div>
-                <div class="msg-time">${time}</div>
-            `;
-            const welcome = container.querySelector('.chat-msg.bot:first-child');
-            if (welcome && container.children.length === 1 && welcome.querySelector('.msg-content')?.textContent.includes('Welcome')) {
-                container.innerHTML = '';
-            }
-            container.appendChild(msgDiv);
-            container.scrollTop = container.scrollHeight;
+    <div class="chat-input-container">
+        <div class="chat-input-wrapper">
+            <input type="text" id="chatInput" placeholder="🌸 Type your message..." autofocus>
+            <button id="sendBtn" class="send-btn">➤ Send</button>
+        </div>
+        <div class="chat-footer">
+            <span class="footer-note">⚠️ If error occurs, please try again.</span>
+            <span class="footer-encrypt">🔒 Encrypted</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modelId = '{{ model_id }}';
+    const modelName = '{{ model.name }}';
+    let isTyping = false;
+
+    function appendMessage(role, content) {
+        const container = document.getElementById('chatMessages');
+        const time = new Date().toLocaleTimeString();
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-msg ${role}`;
+        msgDiv.innerHTML = `
+            <div class="msg-content">${content}</div>
+            <div class="msg-time">${time}</div>
+        `;
+        const welcome = container.querySelector('.chat-msg.bot:first-child');
+        if (welcome && container.children.length === 1 && welcome.querySelector('.msg-content')?.textContent.includes('Welcome')) {
+            container.innerHTML = '';
         }
+        container.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
+    }
 
-        document.getElementById('sendBtn').addEventListener('click', sendMessage);
-        document.getElementById('chatInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendMessage();
-        });
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') sendMessage();
+    });
 
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const query = input.value.trim();
-            if (!query || isTyping) return;
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const query = input.value.trim();
+        if (!query || isTyping) return;
 
-            appendMessage('user', query);
-            input.value = '';
-            input.disabled = true;
-            document.getElementById('sendBtn').disabled = true;
+        appendMessage('user', query);
+        input.value = '';
+        input.disabled = true;
+        document.getElementById('sendBtn').disabled = true;
 
-            const typing = document.getElementById('typingIndicator');
-            typing.style.display = 'flex';
-            isTyping = true;
-            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        const typing = document.getElementById('typingIndicator');
+        typing.style.display = 'flex';
+        isTyping = true;
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
 
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: modelId, query: query })
-                });
-
-                const data = await response.json();
-                typing.style.display = 'none';
-                isTyping = false;
-
-                if (data.success) {
-                    appendMessage('assistant', data.response);
-                } else {
-                    appendMessage('assistant', `⚠️ Error: ${data.error || 'Unknown error'}. Please try again.`);
-                }
-            } catch (error) {
-                typing.style.display = 'none';
-                isTyping = false;
-                appendMessage('assistant', `⚠️ Network error: ${error.message}. Please try again.`);
-            }
-
-            input.disabled = false;
-            document.getElementById('sendBtn').disabled = false;
-            input.focus();
-        }
-
-        function clearHistory() {
-            if (!confirm('Delete all chat history for this model?')) return;
-            
-            fetch(`/api/chat/history/${modelId}`, { method: 'DELETE' })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        const container = document.getElementById('chatMessages');
-                        container.innerHTML = `
-                            <div class="chat-msg bot">
-                                <div class="msg-content">🗑️ Chat history cleared. Start fresh!</div>
-                            </div>
-                        `;
-                    }
-                })
-                .catch(err => alert('Error clearing history: ' + err.message));
-        }
-
-        function exportChat() {
-            const messages = document.querySelectorAll('.chat-msg');
-            let text = `=== ${modelName} Chat Export ===\n\n`;
-            messages.forEach(msg => {
-                const role = msg.classList.contains('user') ? 'You' : modelName;
-                const content = msg.querySelector('.msg-content').textContent;
-                const time = msg.querySelector('.msg-time')?.textContent || '';
-                text += `[${time}] ${role}: ${content}\n\n`;
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: modelId, query: query })
             });
-            
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${modelName}_chat_${new Date().toISOString().slice(0,10)}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
+
+            const data = await response.json();
+            typing.style.display = 'none';
+            isTyping = false;
+
+            if (data.success) {
+                appendMessage('assistant', data.response);
+            } else {
+                appendMessage('assistant', `⚠️ Error: ${data.error || 'Unknown error'}. Please try again.`);
+            }
+        } catch (error) {
+            typing.style.display = 'none';
+            isTyping = false;
+            appendMessage('assistant', `⚠️ Network error: ${error.message}. Please try again.`);
         }
-    </script>
-</body>
-</html>
+
+        input.disabled = false;
+        document.getElementById('sendBtn').disabled = false;
+        input.focus();
+    }
+
+    function clearHistory() {
+        if (!confirm('Delete all chat history for this model?')) return;
+        
+        fetch(`/api/chat/history/${modelId}`, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const container = document.getElementById('chatMessages');
+                    container.innerHTML = `
+                        <div class="chat-msg bot">
+                            <div class="msg-content">🌸 Chat history cleared. Start fresh!</div>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => alert('Error clearing history: ' + err.message));
+    }
+
+    function exportChat() {
+        const messages = document.querySelectorAll('.chat-msg');
+        let text = `=== ${modelName} Chat Export ===\n\n`;
+        messages.forEach(msg => {
+            const role = msg.classList.contains('user') ? 'You' : modelName;
+            const content = msg.querySelector('.msg-content').textContent;
+            const time = msg.querySelector('.msg-time')?.textContent || '';
+            text += `[${time}] ${role}: ${content}\n\n`;
+        });
+        
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${modelName}_chat_${new Date().toISOString().slice(0,10)}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
+{% endblock %}
