@@ -3,9 +3,11 @@ import json
 import requests
 import random
 import time
-from flask import Flask, render_template, request, jsonify, send_file
+import base64
+from flask import Flask, render_template, request, jsonify, send_file, Response
 from flask_cors import CORS
 from urllib.parse import quote
+from io import BytesIO
 
 app = Flask(__name__)
 CORS(app)
@@ -52,6 +54,10 @@ MODELS = {
         'description': 'Microsoft Copilot AI'
     }
 }
+
+# ============================================================
+# UTILITIES
+# ============================================================
 
 UTILITIES = {
     'randomimage': {
@@ -129,20 +135,33 @@ def call_ai_api(model_id, query):
         return {'success': False, 'error': str(e)}
 
 # ============================================================
+# IMAGE HANDLING - FIXED
+# ============================================================
+
+def fetch_image(url):
+    """Fetch image from API and return as base64"""
+    try:
+        response = requests.get(url, timeout=30, stream=True)
+        if response.status_code == 200:
+            content_type = response.headers.get('Content-Type', 'image/png')
+            image_data = response.content
+            b64 = base64.b64encode(image_data).decode('utf-8')
+            return {
+                'success': True,
+                'data': f"data:{content_type};base64,{b64}"
+            }
+        return {'success': False, 'error': f'HTTP {response.status_code}'}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+# ============================================================
 # ROUTES
 # ============================================================
 
 @app.route('/')
 def index():
+    """All-in-one home page with models + utilities"""
     return render_template('index.html', models=MODELS, utilities=UTILITIES)
-
-@app.route('/chat')
-def chat():
-    return render_template('chat.html', models=MODELS)
-
-@app.route('/utilities')
-def utilities_page():
-    return render_template('utilities.html', utilities=UTILITIES)
 
 @app.route('/api/chat', methods=['POST'])
 def chat_api():
@@ -166,17 +185,20 @@ def utility_api(utility_id):
     
     util = UTILITIES[utility_id]
     
-    try:
-        response = requests.get(util['api_url'], timeout=30)
-        
-        if response.status_code == 200:
-            if util['type'] == 'image':
-                return jsonify({
-                    'success': True,
-                    'image_url': response.text.strip(),
-                    'type': 'image'
-                })
-            else:
+    if util['type'] == 'image':
+        result = fetch_image(util['api_url'])
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'image': result['data'],
+                'type': 'image'
+            })
+        else:
+            return jsonify({'success': False, 'error': result['error']}), 500
+    else:
+        try:
+            response = requests.get(util['api_url'], timeout=30)
+            if response.status_code == 200:
                 data = response.json()
                 if utility_id == 'randomquotes':
                     text = data.get('quotes', 'No quote available')
@@ -184,17 +206,15 @@ def utility_api(utility_id):
                     text = data.get('fact', 'No fact available')
                 else:
                     text = str(data)
-                
                 return jsonify({
                     'success': True,
                     'text': text,
                     'type': 'text'
                 })
-        else:
-            return jsonify({'error': f'API Error: {response.status_code}'}), 500
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+            else:
+                return jsonify({'error': f'API Error: {response.status_code}'}), 500
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

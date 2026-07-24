@@ -9,17 +9,15 @@
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <header class="glass-header">
             <h1>🤖 GpsirAI LLM</h1>
-            <p class="subtitle">Universal AI Aggregator</p>
+            <p class="subtitle">AI Models + Utilities — All in One Place</p>
             <p class="developer">By <span>GpsirEra</span> | Developer: <span>Gopal Parmar</span></p>
         </header>
 
-        <div class="nav-links">
-            <a href="/chat" class="nav-btn">💬 Chat with AI</a>
-            <a href="/utilities" class="nav-btn">🎨 Utilities</a>
-        </div>
-
+        <!-- ===== AI MODELS SECTION ===== -->
+        <h2 class="section-title">🧠 AI Models</h2>
         <div class="model-grid">
             {% for id, model in models.items() %}
             <div class="model-card" style="--model-color: {{ model.color }}; --accent-color: {{ model.accent }};">
@@ -28,16 +26,196 @@
                 </div>
                 <h3>{{ model.name }}</h3>
                 <p>{{ model.description }}</p>
-                <span class="model-badge">{{ id }}</span>
-                <a href="/chat?model={{ id }}" class="model-btn">Chat Now</a>
+                <button class="model-btn" onclick="openChat('{{ id }}')">💬 Chat</button>
             </div>
             {% endfor %}
         </div>
 
+        <!-- ===== UTILITIES SECTION ===== -->
+        <h2 class="section-title">🎨 Utilities</h2>
+        <div class="utilities-grid">
+            {% for id, util in utilities.items() %}
+            <div class="utility-card" data-utility="{{ id }}">
+                <div class="utility-icon">{{ util.icon }}</div>
+                <h3>{{ util.name }}</h3>
+                {% if util.type == 'image' %}
+                <div class="utility-image-container" id="image-{{ id }}">
+                    <div class="utility-placeholder">Click Generate to load</div>
+                </div>
+                <button onclick="generateUtility('{{ id }}')" class="utility-btn">🔄 Generate</button>
+                {% else %}
+                <div class="utility-text-container" id="text-{{ id }}">
+                    <p class="utility-text">Click Generate to load</p>
+                </div>
+                <button onclick="generateUtility('{{ id }}')" class="utility-btn">🔄 Generate</button>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Footer -->
         <footer>
             <p>⚠️ For educational purposes only</p>
-            <p>GpsirAI LLM v1.0 | Built with ☠️ by <span>GpsirEra</span></p>
+            <p>GpsirAI LLM v2.0 | Built with ☠️ by <span>GpsirEra</span></p>
         </footer>
     </div>
+
+    <!-- ===== CHAT MODAL ===== -->
+    <div id="chatModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <img id="modalLogo" src="" alt="" style="width:32px;height:32px;object-fit:contain;">
+                    <span id="modalModelName">GPT-5</span>
+                </div>
+                <button class="modal-close" onclick="closeChat()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="chat-box" id="chatBox">
+                    <div class="chat-message bot">
+                        <div class="message-content">👋 Hello! Ask me anything.</div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Type your message..." autofocus>
+                    <button id="sendBtn">➤ Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CHAT MODAL
+        // ==========================================
+        let currentModel = 'gpt-5';
+        let modelNames = {};
+        {% for id, model in models.items() %}
+        modelNames['{{ id }}'] = '{{ model.name }}';
+        {% endfor %}
+
+        function openChat(modelId) {
+            currentModel = modelId;
+            document.getElementById('modalModelName').textContent = modelNames[modelId];
+            document.getElementById('modalLogo').src = `/static/logos/${modelId}.png`;
+            document.getElementById('chatModal').classList.add('active');
+            document.getElementById('chatBox').innerHTML = `
+                <div class="chat-message bot">
+                    <div class="message-content">👋 Hello! I'm ${modelNames[modelId]}. Ask me anything!</div>
+                </div>
+            `;
+            document.getElementById('chatInput').value = '';
+            document.getElementById('chatInput').focus();
+        }
+
+        function closeChat() {
+            document.getElementById('chatModal').classList.remove('active');
+        }
+
+        document.getElementById('chatModal').addEventListener('click', function(e) {
+            if (e.target === this) closeChat();
+        });
+
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const query = input.value.trim();
+            if (!query) return;
+
+            const chatBox = document.getElementById('chatBox');
+            
+            chatBox.innerHTML += `
+                <div class="chat-message user">
+                    <div class="message-content">${query}</div>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            input.value = '';
+            input.disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+
+            const loadingId = Date.now();
+            chatBox.innerHTML += `
+                <div class="chat-message bot" id="loading-${loadingId}">
+                    <div class="message-content">⏳ Thinking...</div>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: currentModel, query: query })
+                });
+
+                const data = await response.json();
+                document.getElementById(`loading-${loadingId}`).remove();
+
+                if (data.success) {
+                    chatBox.innerHTML += `
+                        <div class="chat-message bot">
+                            <div class="message-content">${data.response}</div>
+                        </div>
+                    `;
+                } else {
+                    chatBox.innerHTML += `
+                        <div class="chat-message bot error">
+                            <div class="message-content">❌ Error: ${data.error || 'Unknown error'}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById(`loading-${loadingId}`).remove();
+                chatBox.innerHTML += `
+                    <div class="chat-message bot error">
+                        <div class="message-content">❌ Network error: ${error.message}</div>
+                    </div>
+                `;
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+            input.disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+            input.focus();
+        }
+
+        // ==========================================
+        // UTILITIES
+        // ==========================================
+        async function generateUtility(utilityId) {
+            const card = document.querySelector(`[data-utility="${utilityId}"]`);
+            const btn = card.querySelector('.utility-btn');
+            btn.textContent = '⏳ Loading...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/utility/${utilityId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.type === 'image') {
+                        const container = card.querySelector('.utility-image-container');
+                        container.innerHTML = `<img src="${data.image}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;">`;
+                    } else {
+                        const textEl = card.querySelector('.utility-text');
+                        textEl.textContent = data.text;
+                    }
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to generate'));
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+
+            btn.textContent = '🔄 Generate';
+            btn.disabled = false;
+        }
+    </script>
 </body>
 </html>
