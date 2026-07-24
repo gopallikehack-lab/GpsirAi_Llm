@@ -192,9 +192,13 @@ def fetch_image(util):
     except Exception as e:
         return {'success': False, 'error': str(e)}
 
-def fetch_gallery(util):
+def fetch_gallery(util, query=None):
     try:
-        response = requests.get(util['api_url'], timeout=30)
+        if query:
+            url = f"https://r-bots-free-apis.co08.art/api/v1/api/pinterest?q={quote(query)}"
+        else:
+            url = util['api_url']
+        response = requests.get(url, timeout=30)
         if response.status_code == 200:
             data = response.json()
             if data.get('status') and data.get('data'):
@@ -264,7 +268,8 @@ def utility_api(utility_id):
     util = UTILITIES[utility_id]
     
     if util['type'] == 'gallery':
-        result = fetch_gallery(util)
+        query = request.args.get('query')
+        result = fetch_gallery(util, query)
         if result['success']:
             return jsonify({
                 'success': True,
