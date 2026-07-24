@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GpsirAI - Utilities</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="glass-header">
+            <a href="/" class="back-link">← Back</a>
+            <h1>🎨 AI Utilities</h1>
+            <p class="subtitle">Random generators & fun tools</p>
+        </header>
+
+        <div class="utilities-grid">
+            {% for id, util in utilities.items() %}
+            <div class="utility-card" data-utility="{{ id }}">
+                <div class="utility-icon">{{ util.icon }}</div>
+                <h3>{{ util.name }}</h3>
+                {% if util.type == 'image' %}
+                <div class="utility-image-container" id="image-{{ id }}">
+                    <img src="" alt="{{ util.name }}" style="display:none;max-width:100%;border-radius:12px;max-height:300px;">
+                    <div class="utility-placeholder">Click generate to see image</div>
+                </div>
+                <button onclick="generateUtility('{{ id }}')" class="utility-btn">🔄 Generate</button>
+                {% else %}
+                <div class="utility-text-container" id="text-{{ id }}">
+                    <p class="utility-text">Click generate to get random content</p>
+                </div>
+                <button onclick="generateUtility('{{ id }}')" class="utility-btn">🔄 Generate</button>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <footer>
+            <p>GpsirAI LLM v1.0 | Built with ☠️ by <span>GpsirEra</span></p>
+        </footer>
+    </div>
+    <script>
+        async function generateUtility(utilityId) {
+            const card = document.querySelector(`[data-utility="${utilityId}"]`);
+            const btn = card.querySelector('.utility-btn');
+            btn.textContent = '⏳ Loading...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/utility/${utilityId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.type === 'image') {
+                        const img = card.querySelector('img');
+                        const placeholder = card.querySelector('.utility-placeholder');
+                        img.src = data.image_url;
+                        img.style.display = 'block';
+                        placeholder.style.display = 'none';
+                    } else {
+                        const textEl = card.querySelector('.utility-text');
+                        textEl.textContent = data.text;
+                    }
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to generate'));
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+
+            btn.textContent = '🔄 Generate';
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>

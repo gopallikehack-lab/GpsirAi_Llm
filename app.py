@@ -40,7 +40,7 @@ MODELS = {
         'accent': '#FCD34D',
         'api_url': 'https://r-bots-free-apis.co08.art/api/v1/api/llama-meta',
         'param': 'q',
-        'description': 'Meta\'s Llama 3.1 AI'
+        'description': "Meta's Llama 3.1 AI"
     },
     'copilot': {
         'name': 'Copilot AI',
@@ -52,10 +52,6 @@ MODELS = {
         'description': 'Microsoft Copilot AI'
     }
 }
-
-# ============================================================
-# UTILITY APIS
-# ============================================================
 
 UTILITIES = {
     'randomimage': {
@@ -95,7 +91,6 @@ UTILITIES = {
 # ============================================================
 
 def call_ai_api(model_id, query):
-    """Call the AI API for a specific model"""
     model = MODELS.get(model_id)
     if not model:
         return {'success': False, 'error': 'Model not found'}
@@ -110,7 +105,6 @@ def call_ai_api(model_id, query):
         if response.status_code == 200:
             data = response.json()
             
-            # Different models have different response keys
             if model_id == 'gpt-5':
                 text = data.get('results', 'No response')
             elif model_id == 'deep-ai':
@@ -140,22 +134,18 @@ def call_ai_api(model_id, query):
 
 @app.route('/')
 def index():
-    """Main page with all models"""
     return render_template('index.html', models=MODELS, utilities=UTILITIES)
 
 @app.route('/chat')
 def chat():
-    """Chat interface"""
     return render_template('chat.html', models=MODELS)
 
 @app.route('/utilities')
 def utilities_page():
-    """Utilities page"""
     return render_template('utilities.html', utilities=UTILITIES)
 
 @app.route('/api/chat', methods=['POST'])
 def chat_api():
-    """API endpoint for chat"""
     data = request.get_json()
     model_id = data.get('model', 'gpt-5')
     query = data.get('query', '').strip()
@@ -171,7 +161,6 @@ def chat_api():
 
 @app.route('/api/utility/<utility_id>')
 def utility_api(utility_id):
-    """Get utility data"""
     if utility_id not in UTILITIES:
         return jsonify({'error': 'Utility not found'}), 404
     
@@ -182,14 +171,12 @@ def utility_api(utility_id):
         
         if response.status_code == 200:
             if util['type'] == 'image':
-                # For image APIs, return the image URL
                 return jsonify({
                     'success': True,
                     'image_url': response.text.strip(),
                     'type': 'image'
                 })
             else:
-                # For text APIs, parse JSON
                 data = response.json()
                 if utility_id == 'randomquotes':
                     text = data.get('quotes', 'No quote available')
@@ -206,48 +193,6 @@ def utility_api(utility_id):
         else:
             return jsonify({'error': f'API Error: {response.status_code}'}), 500
     
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/randomimage')
-def random_image():
-    """Get random image"""
-    try:
-        response = requests.get('https://r-bots-free-apis.co08.art/api/v1/api/randomimage', timeout=30)
-        if response.status_code == 200:
-            return jsonify({
-                'success': True,
-                'image_url': response.text.strip()
-            })
-        return jsonify({'error': 'Failed to get image'}), 500
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/waifu')
-def waifu():
-    """Get waifu image"""
-    try:
-        response = requests.get('https://r-bots-free-apis.co08.art/api/v1/api/waifu', timeout=30)
-        if response.status_code == 200:
-            return jsonify({
-                'success': True,
-                'image_url': response.text.strip()
-            })
-        return jsonify({'error': 'Failed to get waifu'}), 500
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/cosplay')
-def cosplay():
-    """Get cosplay image"""
-    try:
-        response = requests.get('https://r-bots-free-apis.co08.art/api/v1/api/cosplay', timeout=30)
-        if response.status_code == 200:
-            return jsonify({
-                'success': True,
-                'image_url': response.text.strip()
-            })
-        return jsonify({'error': 'Failed to get cosplay'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

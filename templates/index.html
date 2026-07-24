@@ -1,8 +1,43 @@
 <!DOCTYPE html>
-<html>
-<head><title>GpsirAI LLM</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GpsirAI LLM - AI Aggregator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
-<h1>GpsirAI LLM</h1>
-<p>AI Aggregator Platform</p>
+    <div class="container">
+        <header class="glass-header">
+            <h1>🤖 GpsirAI LLM</h1>
+            <p class="subtitle">Universal AI Aggregator</p>
+            <p class="developer">By <span>GpsirEra</span> | Developer: <span>Gopal Parmar</span></p>
+        </header>
+
+        <div class="nav-links">
+            <a href="/chat" class="nav-btn">💬 Chat with AI</a>
+            <a href="/utilities" class="nav-btn">🎨 Utilities</a>
+        </div>
+
+        <div class="model-grid">
+            {% for id, model in models.items() %}
+            <div class="model-card" style="--model-color: {{ model.color }}; --accent-color: {{ model.accent }};">
+                <div class="model-logo">
+                    <img src="/static/logos/{{ model.logo }}" alt="{{ model.name }}" loading="lazy">
+                </div>
+                <h3>{{ model.name }}</h3>
+                <p>{{ model.description }}</p>
+                <span class="model-badge">{{ id }}</span>
+                <a href="/chat?model={{ id }}" class="model-btn">Chat Now</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <footer>
+            <p>⚠️ For educational purposes only</p>
+            <p>GpsirAI LLM v1.0 | Built with ☠️ by <span>GpsirEra</span></p>
+        </footer>
+    </div>
 </body>
 </html>
