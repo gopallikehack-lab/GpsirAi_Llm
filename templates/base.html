@@ -61,11 +61,13 @@
     <!-- Main Content -->
     {% block content %}{% endblock %}
 
-    <!-- Footer -->
+    <!-- Footer (hidden on chat pages) -->
+    {% block footer %}
     <footer>
         <p>⚠️ For educational purposes only</p>
         <p>GpsirAI LLM v2.0 | Built with ☠️ by <span>GpsirEra</span></p>
     </footer>
+    {% endblock %}
 
     <script src="/static/js/float-circle.js"></script>
     <script>
