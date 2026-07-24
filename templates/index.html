@@ -34,20 +34,19 @@
         <h2 class="section-title">🎨 Utilities</h2>
         <div class="utilities-grid">
             {% for id, util in utilities.items() %}
-            <div class="utility-card" data-utility="{{ id }}">
+            <div class="utility-card" data-utility="{{ id }}" data-type="{{ util.type }}">
                 <div class="utility-icon">{{ util.icon }}</div>
                 <h3>{{ util.name }}</h3>
                 {% if util.type == 'image' %}
                 <div class="utility-image-container" id="image-{{ id }}">
                     <div class="utility-placeholder">Click Generate to load</div>
                 </div>
-                <button onclick="generateUtility('{{ id }}')" class="utility-btn">🔄 Generate</button>
                 {% else %}
                 <div class="utility-text-container" id="text-{{ id }}">
                     <p class="utility-text">Click Generate to load</p>
                 </div>
-                <button onclick="generateUtility('{{ id }}')" class="utility-btn">🔄 Generate</button>
                 {% endif %}
+                <button onclick="generateUtility('{{ id }}')" class="utility-btn">🔄 Generate</button>
             </div>
             {% endfor %}
         </div>
@@ -184,11 +183,13 @@
         }
 
         // ==========================================
-        // UTILITIES - FIXED IMAGE HANDLING
+        // UTILITIES - FIXED
         // ==========================================
         async function generateUtility(utilityId) {
             const card = document.querySelector(`[data-utility="${utilityId}"]`);
             const btn = card.querySelector('.utility-btn');
+            const type = card.dataset.type;
+            
             btn.textContent = '⏳ Loading...';
             btn.disabled = true;
 
@@ -197,20 +198,25 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    if (data.type === 'image') {
+                    if (type === 'image') {
                         const container = card.querySelector('.utility-image-container');
                         if (data.image_url) {
-                            // Direct image URL (from JSON response)
-                            container.innerHTML = `<img src="${data.image_url}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;">`;
+                            container.innerHTML = `<img src="${data.image_url}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;background:#000;">`;
                         } else if (data.image) {
-                            // Base64 image
-                            container.innerHTML = `<img src="${data.image}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;">`;
+                            container.innerHTML = `<img src="${data.image}" alt="Image" style="max-width:100%;border-radius:12px;max-height:300px;object-fit:contain;background:#000;">`;
                         } else {
-                            container.innerHTML = `<div class="utility-placeholder">No image received</div>`;
+                            container.innerHTML = `<div class="utility-placeholder">⚠️ No image received</div>`;
                         }
                     } else {
-                        const textEl = card.querySelector('.utility-text');
-                        textEl.textContent = data.text || 'No text received';
+                        const container = card.querySelector('.utility-text-container');
+                        if (container) {
+                            const textEl = container.querySelector('.utility-text');
+                            if (textEl) {
+                                textEl.textContent = data.text || 'No text received';
+                            } else {
+                                container.innerHTML = `<p class="utility-text">${data.text || 'No text received'}</p>`;
+                            }
+                        }
                     }
                 } else {
                     alert('Error: ' + (data.error || 'Failed to generate'));
