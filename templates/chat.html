@@ -26,7 +26,7 @@
         transition: background 0.3s ease;
     }
 
-    /* ===== PARTICLES (Cherry Blossom) ===== */
+    /* ===== PARTICLES (Cherry Blossom + Sticker) ===== */
     .blossom-container {
         position: fixed;
         top: 0;
@@ -44,9 +44,29 @@
         animation: fall linear infinite;
         user-select: none;
     }
+    .blossom.sticker {
+        font-size: 0;
+        width: 30px;
+        height: 30px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        opacity: 0.25;
+        animation: fall-sticker linear infinite;
+    }
+    .blossom.sticker img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
     @keyframes fall {
         0% { transform: translateY(-10vh) rotate(0deg) scale(0.8); opacity: 0.4; }
         100% { transform: translateY(110vh) rotate(720deg) scale(1.2); opacity: 0.1; }
+    }
+    @keyframes fall-sticker {
+        0% { transform: translateY(-10vh) rotate(0deg) scale(0.6); opacity: 0.2; }
+        100% { transform: translateY(110vh) rotate(360deg) scale(1); opacity: 0.05; }
     }
 
     /* ===== HEADER ===== */
@@ -118,7 +138,7 @@
         50% { opacity: 0.3; }
     }
 
-    /* ===== HEADER RIGHT (Theme + Search + Buttons) ===== */
+    /* ===== HEADER RIGHT ===== */
     .chat-header-right {
         display: flex;
         align-items: center;
@@ -149,7 +169,7 @@
         color: #ef4444;
     }
 
-    /* ===== SEARCH BUTTON - HIGHLIGHTED ===== */
+    /* ===== SEARCH BUTTON ===== */
     .search-toggle-btn {
         background: rgba(37,99,235,0.1) !important;
         border: 1px solid rgba(37,99,235,0.15) !important;
@@ -161,9 +181,6 @@
         background: rgba(37,99,235,0.2) !important;
         border-color: rgba(37,99,235,0.3) !important;
         color: #93bbfc !important;
-    }
-    .search-toggle-btn .search-icon {
-        font-size: 1rem;
     }
 
     /* ===== THEME SELECTOR ===== */
@@ -190,7 +207,6 @@
         border: 2px solid rgba(255,255,255,0.08);
         cursor: pointer;
         transition: all 0.3s ease;
-        position: relative;
     }
     .theme-dot:hover {
         transform: scale(1.15);
@@ -454,28 +470,13 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
-        .chat-header-pro {
-            padding: 10px 16px;
-        }
-        .chat-header-right .header-btn {
-            font-size: 0.7rem;
-            padding: 5px 10px;
-        }
-        .theme-dot {
-            width: 18px;
-            height: 18px;
-        }
-        .search-toggle-btn {
-            padding: 5px 12px !important;
-        }
+        .chat-header-pro { padding: 10px 16px; }
+        .chat-header-right .header-btn { font-size: 0.7rem; padding: 5px 10px; }
+        .theme-dot { width: 18px; height: 18px; }
+        .search-toggle-btn { padding: 5px 12px !important; }
     }
-
     @media (max-width: 768px) {
-        .chat-header-pro {
-            padding: 8px 12px;
-            flex-wrap: wrap;
-            gap: 4px;
-        }
+        .chat-header-pro { padding: 8px 12px; flex-wrap: wrap; gap: 4px; }
         .chat-header-left .model-info h2 { font-size: 0.9rem; }
         .chat-messages-pro { padding: 14px; }
         .msg-pro { max-width: 92%; }
@@ -488,8 +489,8 @@
         .theme-selector .theme-label { display: none; }
         .search-toggle-btn { padding: 4px 10px !important; font-size: 0.7rem !important; }
         .search-overlay .search-box { width: 95%; padding: 12px 16px; }
+        .blossom.sticker { width: 22px; height: 22px; }
     }
-
     @media (max-width: 480px) {
         .chat-header-pro { padding: 6px 10px; }
         .chat-header-left .model-icon { width: 24px; height: 24px; padding: 2px; }
@@ -501,13 +502,14 @@
         .theme-selector { padding: 2px 6px; gap: 3px; }
         .theme-dot { width: 14px; height: 14px; border-width: 1px; }
         .search-toggle-btn { padding: 3px 8px !important; font-size: 0.6rem !important; }
+        .blossom.sticker { width: 18px; height: 18px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="chat-fullscreen" id="chatApp">
-    <!-- Blossom Particles -->
+    <!-- Blossom + Sticker Particles -->
     <div class="blossom-container" id="blossomContainer"></div>
 
     <!-- Header -->
@@ -521,7 +523,6 @@
             </div>
         </div>
         <div class="chat-header-right">
-            <!-- Theme Selector -->
             <div class="theme-selector">
                 <span class="theme-label">🎨</span>
                 <span class="theme-dot sandalwood" onclick="setTheme('sandalwood')" title="Sandalwood"></span>
@@ -530,9 +531,8 @@
                 <span class="theme-dot rose" onclick="setTheme('rose')" title="Rose"></span>
                 <span class="theme-dot dark active" onclick="setTheme('dark')" title="Dark Default"></span>
             </div>
-            <!-- Search Button (Highlighted) -->
             <button class="header-btn search-toggle-btn" onclick="toggleSearch()">
-                <span class="search-icon">🔍</span> Search
+                <span>🔍</span> Search
             </button>
             <button class="header-btn" onclick="clearHistory()" title="Clear all messages">🗑️</button>
             <button class="header-btn" onclick="exportChat()" title="Export chat">📥</button>
@@ -593,12 +593,14 @@
     let allMessages = [];
 
     // ==========================================
-    // CHERRY BLOSSOM PARTICLES
+    // CHERRY BLOSSOM + STICKER PARTICLES
     // ==========================================
-    function createBlossoms() {
+    function createParticles() {
         const container = document.getElementById('blossomContainer');
         const emojis = ['🌸', '🌸', '🌸', '🌸', '🌸', '🌺', '🌷', '🌹', '🌸', '🌸'];
-        for (let i = 0; i < 25; i++) {
+        
+        // Cherry blossoms (15)
+        for (let i = 0; i < 15; i++) {
             const blossom = document.createElement('div');
             blossom.className = 'blossom';
             blossom.textContent = emojis[Math.floor(Math.random() * emojis.length)];
@@ -609,8 +611,23 @@
             blossom.style.animationDelay = (Math.random() * 20) + 's';
             container.appendChild(blossom);
         }
+
+        // Sticker logo particles (8)
+        const stickerUrl = '/static/images/sticker.png';
+        for (let i = 0; i < 8; i++) {
+            const sticker = document.createElement('div');
+            sticker.className = 'blossom sticker';
+            sticker.style.backgroundImage = `url('${stickerUrl}')`;
+            sticker.style.left = Math.random() * 100 + '%';
+            sticker.style.width = (25 + Math.random() * 20) + 'px';
+            sticker.style.height = sticker.style.width;
+            sticker.style.opacity = 0.15 + Math.random() * 0.2;
+            sticker.style.animationDuration = (18 + Math.random() * 20) + 's';
+            sticker.style.animationDelay = (Math.random() * 25) + 's';
+            container.appendChild(sticker);
+        }
     }
-    createBlossoms();
+    createParticles();
 
     // ==========================================
     // THEME SYSTEM
@@ -634,7 +651,7 @@
     }
 
     // ==========================================
-    // SEARCH FUNCTION
+    // SEARCH
     // ==========================================
     function toggleSearch() {
         const overlay = document.getElementById('searchOverlay');
@@ -682,7 +699,7 @@
     }
 
     // ==========================================
-    // APPEND MESSAGE (with bold formatting)
+    // APPEND MESSAGE
     // ==========================================
     function appendMessage(role, content) {
         const container = document.getElementById('chatMessages');
@@ -704,7 +721,6 @@
         }
         container.appendChild(msgDiv);
         container.scrollTop = container.scrollHeight;
-        
         allMessages.push({ role, content, element: msgDiv });
     }
 
