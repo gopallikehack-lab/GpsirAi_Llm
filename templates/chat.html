@@ -4,12 +4,14 @@
 
 {% block extra_css %}
 <style>
+    /* ===== BASE ===== */
     html, body {
         margin: 0;
         padding: 0;
         height: 100%;
         overflow: hidden;
         background: #0a0a0f;
+        transition: background 0.3s ease;
     }
     .chat-fullscreen {
         display: flex;
@@ -21,53 +23,82 @@
         top: 0;
         left: 0;
         z-index: 999;
+        transition: background 0.3s ease;
     }
+
+    /* ===== PARTICLES (Cherry Blossom) ===== */
+    .blossom-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    }
+    .blossom {
+        position: absolute;
+        font-size: 1.2rem;
+        opacity: 0.4;
+        animation: fall linear infinite;
+        user-select: none;
+    }
+    @keyframes fall {
+        0% { transform: translateY(-10vh) rotate(0deg) scale(0.8); opacity: 0.4; }
+        100% { transform: translateY(110vh) rotate(720deg) scale(1.2); opacity: 0.1; }
+    }
+
+    /* ===== HEADER ===== */
     .chat-header-pro {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 16px 32px;
-        background: rgba(255, 255, 255, 0.02);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        padding: 12px 24px;
+        background: rgba(255,255,255,0.02);
+        border-bottom: 1px solid rgba(255,255,255,0.04);
         flex-shrink: 0;
         backdrop-filter: blur(20px);
+        z-index: 10;
+        flex-wrap: wrap;
+        gap: 8px;
     }
     .chat-header-left {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 14px;
     }
     .chat-header-left .back-home {
         color: #6c6c80;
         text-decoration: none;
-        font-size: 0.85rem;
-        padding: 6px 14px;
+        font-size: 0.8rem;
+        padding: 6px 12px;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255,255,255,0.03);
         transition: all 0.3s ease;
         font-weight: 500;
     }
     .chat-header-left .back-home:hover {
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(255,255,255,0.06);
         color: #fff;
     }
     .chat-header-left .model-icon {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         object-fit: contain;
-        background: rgba(255, 255, 255, 0.03);
-        padding: 6px;
+        background: rgba(255,255,255,0.03);
+        padding: 4px;
     }
     .chat-header-left .model-info h2 {
         font-family: 'Orbitron', sans-serif;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #fff;
         letter-spacing: 0.5px;
     }
     .chat-header-left .model-info .status {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: #4ade80;
         display: flex;
         align-items: center;
@@ -75,8 +106,8 @@
     }
     .chat-header-left .model-info .status::before {
         content: '';
-        width: 6px;
-        height: 6px;
+        width: 5px;
+        height: 5px;
         border-radius: 50%;
         background: #4ade80;
         display: inline-block;
@@ -86,96 +117,154 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0.3; }
     }
+
     .chat-header-right {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
+        flex-wrap: wrap;
     }
     .chat-header-right .header-btn {
-        padding: 8px 16px;
+        padding: 6px 14px;
         border: none;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255,255,255,0.03);
         color: #a8a8b3;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s ease;
         font-family: 'Rajdhani', sans-serif;
     }
     .chat-header-right .header-btn:hover {
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(255,255,255,0.06);
         color: #fff;
     }
     .chat-header-right .header-btn.danger:hover {
-        background: rgba(239, 68, 68, 0.15);
+        background: rgba(239,68,68,0.15);
         color: #ef4444;
     }
+
+    /* ===== SEARCH BUTTON ===== */
+    .search-toggle-btn {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.06) !important;
+    }
+    .search-toggle-btn:hover {
+        background: rgba(255,255,255,0.1) !important;
+    }
+
+    /* ===== THEME SELECTOR ===== */
+    .theme-selector {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+    .theme-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid rgba(255,255,255,0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    .theme-dot:hover {
+        transform: scale(1.15);
+        border-color: rgba(255,255,255,0.3);
+    }
+    .theme-dot.active {
+        border-color: #fff;
+        box-shadow: 0 0 16px rgba(255,255,255,0.15);
+    }
+    .theme-dot.sandalwood { background: linear-gradient(135deg, #d4a373, #cc8e6a); }
+    .theme-dot.dracula { background: linear-gradient(135deg, #282a36, #44475a); }
+    .theme-dot.neon { background: linear-gradient(135deg, #00ff88, #00ccff); }
+    .theme-dot.dark { background: linear-gradient(135deg, #0a0a0f, #1a1a2e); }
+    .theme-dot.rose { background: linear-gradient(135deg, #ff6b6b, #ff9a9e); }
+
+    /* ===== THEME CLASSES ===== */
+    .theme-sandalwood .chat-fullscreen { background: #1a120e; }
+    .theme-sandalwood .chat-messages-pro { background: rgba(212, 163, 115, 0.05); }
+    .theme-sandalwood .msg-pro.bot .msg-bubble { background: rgba(212, 163, 115, 0.08); border-color: rgba(212, 163, 115, 0.1); color: #e8d5c4; }
+    .theme-sandalwood .msg-pro.user .msg-bubble { background: linear-gradient(135deg, #d4a373, #cc8e6a); }
+
+    .theme-dracula .chat-fullscreen { background: #1a1a2e; }
+    .theme-dracula .chat-messages-pro { background: rgba(68, 71, 90, 0.05); }
+    .theme-dracula .msg-pro.bot .msg-bubble { background: rgba(68, 71, 90, 0.08); border-color: rgba(68, 71, 90, 0.1); color: #f8f8f2; }
+    .theme-dracula .msg-pro.user .msg-bubble { background: linear-gradient(135deg, #6272a4, #bd93f9); }
+
+    .theme-neon .chat-fullscreen { background: #0a0a0f; }
+    .theme-neon .chat-messages-pro { background: rgba(0, 255, 136, 0.02); }
+    .theme-neon .msg-pro.bot .msg-bubble { background: rgba(0, 255, 136, 0.05); border-color: rgba(0, 255, 136, 0.08); color: #b0f0d0; }
+    .theme-neon .msg-pro.user .msg-bubble { background: linear-gradient(135deg, #00ff88, #00ccff); }
+
+    .theme-rose .chat-fullscreen { background: #1a0a0a; }
+    .theme-rose .chat-messages-pro { background: rgba(255, 107, 107, 0.03); }
+    .theme-rose .msg-pro.bot .msg-bubble { background: rgba(255, 107, 107, 0.06); border-color: rgba(255, 107, 107, 0.08); color: #ffd4d4; }
+    .theme-rose .msg-pro.user .msg-bubble { background: linear-gradient(135deg, #ff6b6b, #ff9a9e); }
+
+    /* ===== MESSAGES ===== */
     .chat-messages-pro {
         flex: 1;
         overflow-y: auto;
-        padding: 24px 32px;
+        padding: 20px 28px;
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 14px;
         scroll-behavior: smooth;
+        z-index: 1;
+        position: relative;
+        transition: background 0.3s ease;
     }
-    .chat-messages-pro::-webkit-scrollbar {
-        width: 4px;
-    }
-    .chat-messages-pro::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .chat-messages-pro::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-    }
+    .chat-messages-pro::-webkit-scrollbar { width: 4px; }
+    .chat-messages-pro::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages-pro::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
     .msg-pro {
-        max-width: 75%;
+        max-width: 80%;
         animation: fadeInUp 0.3s ease;
+        position: relative;
+        z-index: 2;
     }
-    .msg-pro.user {
-        align-self: flex-end;
-    }
-    .msg-pro.bot {
-        align-self: flex-start;
-    }
+    .msg-pro.user { align-self: flex-end; }
+    .msg-pro.bot { align-self: flex-start; }
+
     .msg-pro .msg-bubble {
-        padding: 14px 20px;
+        padding: 12px 18px;
         border-radius: 16px;
         font-size: 0.95rem;
         line-height: 1.7;
         word-wrap: break-word;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.04);
         color: #e0e0e0;
+        transition: all 0.3s ease;
     }
-    .msg-pro.user .msg-bubble {
-        background: linear-gradient(135deg, #2563eb, #7c3aed);
-        border: none;
-        color: #fff;
+    .msg-pro .msg-bubble strong {
+        color: #ff8a8a;
+        font-weight: 700;
     }
-    .msg-pro.bot .msg-bubble {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.04);
+    .msg-pro .msg-bubble em {
+        color: #ffb3b3;
+        font-style: italic;
     }
     .msg-pro .msg-time {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         color: #4a4a5a;
-        margin-top: 4px;
+        margin-top: 3px;
         padding: 0 4px;
         text-align: right;
     }
-    .msg-pro.user .msg-time {
-        color: #6c6c80;
-    }
+    .msg-pro.user .msg-time { color: #6c6c80; }
+
     #typingIndicator {
         display: none;
         align-self: flex-start;
     }
     #typingIndicator .msg-bubble {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: rgba(255,255,255,0.02);
+        border-color: rgba(255,255,255,0.03);
         color: #6c6c80;
     }
     .typing-dots::after {
@@ -187,30 +276,34 @@
         33% { content: '..'; }
         66% { content: '...'; }
     }
+
+    /* ===== INPUT ===== */
     .chat-input-pro {
         flex-shrink: 0;
-        padding: 16px 32px 24px;
-        background: rgba(255, 255, 255, 0.01);
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        padding: 12px 24px 18px;
+        background: rgba(255,255,255,0.01);
+        border-top: 1px solid rgba(255,255,255,0.03);
+        z-index: 10;
+        position: relative;
     }
     .chat-input-wrapper-pro {
         display: flex;
-        gap: 12px;
+        gap: 10px;
         max-width: 900px;
         margin: 0 auto;
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 16px;
+        background: rgba(255,255,255,0.02);
+        border-radius: 14px;
         padding: 4px;
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255,255,255,0.04);
         transition: all 0.3s ease;
     }
     .chat-input-wrapper-pro:focus-within {
-        border-color: rgba(37, 99, 235, 0.3);
-        box-shadow: 0 0 40px rgba(37, 99, 235, 0.05);
+        border-color: rgba(37,99,235,0.3);
+        box-shadow: 0 0 30px rgba(37,99,235,0.04);
     }
     .chat-input-wrapper-pro input {
         flex: 1;
-        padding: 14px 20px;
+        padding: 12px 18px;
         background: transparent;
         border: none;
         color: #fff;
@@ -218,11 +311,9 @@
         font-family: 'Rajdhani', sans-serif;
         outline: none;
     }
-    .chat-input-wrapper-pro input::placeholder {
-        color: #4a4a5a;
-    }
+    .chat-input-wrapper-pro input::placeholder { color: #4a4a5a; }
     .chat-input-wrapper-pro .send-btn-pro {
-        padding: 12px 28px;
+        padding: 10px 24px;
         border: none;
         border-radius: 12px;
         background: linear-gradient(135deg, #2563eb, #7c3aed);
@@ -235,57 +326,139 @@
     }
     .chat-input-wrapper-pro .send-btn-pro:hover {
         transform: scale(1.02);
-        box-shadow: 0 0 30px rgba(37, 99, 235, 0.2);
+        box-shadow: 0 0 24px rgba(37,99,235,0.2);
     }
     .chat-input-wrapper-pro .send-btn-pro:disabled {
         opacity: 0.4;
         cursor: not-allowed;
         transform: none;
     }
+
     .chat-footer-pro {
         display: flex;
         justify-content: space-between;
         max-width: 900px;
-        margin: 10px auto 0;
-        font-size: 0.7rem;
+        margin: 8px auto 0;
+        font-size: 0.65rem;
         color: #3a3a4a;
     }
-    .chat-footer-pro .footer-note {
-        color: #f59e0b;
+    .chat-footer-pro .footer-note { color: #f59e0b; }
+    .chat-footer-pro .footer-encrypt { color: #4ade80; }
+
+    /* ===== SEARCH OVERLAY ===== */
+    .search-overlay {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(8px);
+        z-index: 20;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 80px;
     }
-    .chat-footer-pro .footer-encrypt {
-        color: #4ade80;
+    .search-overlay.active {
+        display: flex;
+        animation: fadeIn 0.3s ease;
     }
+    .search-overlay .search-box {
+        background: rgba(255,255,255,0.05);
+        border-radius: 16px;
+        padding: 16px 20px;
+        width: 90%;
+        max-width: 500px;
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(20px);
+    }
+    .search-overlay .search-box input {
+        width: 100%;
+        padding: 12px 16px;
+        border: none;
+        border-radius: 10px;
+        background: rgba(0,0,0,0.4);
+        color: #fff;
+        font-size: 1rem;
+        font-family: 'Rajdhani', sans-serif;
+        outline: none;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    .search-overlay .search-box input:focus {
+        border-color: rgba(37,99,235,0.3);
+    }
+    .search-overlay .search-close {
+        color: #a8a8b3;
+        font-size: 1.2rem;
+        cursor: pointer;
+        background: none;
+        border: none;
+        float: right;
+        transition: all 0.3s ease;
+    }
+    .search-overlay .search-close:hover {
+        color: #fff;
+        transform: rotate(90deg);
+    }
+    .search-overlay .search-results {
+        margin-top: 16px;
+        max-height: 300px;
+        overflow-y: auto;
+        color: #a8a8b3;
+        font-size: 0.9rem;
+    }
+    .search-overlay .search-results .result-item {
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 4px;
+    }
+    .search-overlay .search-results .result-item:hover {
+        background: rgba(255,255,255,0.05);
+        color: #fff;
+    }
+
     @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(12px); }
+        from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-        .chat-header-pro { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
-        .chat-header-left .model-info h2 { font-size: 0.95rem; }
-        .chat-messages-pro { padding: 16px; }
-        .msg-pro { max-width: 90%; }
-        .chat-input-pro { padding: 12px 16px 16px; }
-        .chat-input-wrapper-pro { flex-direction: row; }
-        .chat-input-wrapper-pro input { padding: 12px 16px; font-size: 0.9rem; }
-        .chat-input-wrapper-pro .send-btn-pro { padding: 10px 20px; font-size: 0.8rem; }
+        .chat-header-pro { padding: 10px 16px; flex-wrap: wrap; gap: 6px; }
+        .chat-header-left .model-info h2 { font-size: 0.9rem; }
+        .chat-messages-pro { padding: 14px; }
+        .msg-pro { max-width: 92%; }
+        .chat-input-pro { padding: 10px 14px 14px; }
+        .chat-input-wrapper-pro input { padding: 10px 14px; font-size: 0.9rem; }
+        .chat-input-wrapper-pro .send-btn-pro { padding: 8px 16px; font-size: 0.8rem; }
         .chat-header-right .header-btn { padding: 4px 10px; font-size: 0.7rem; }
-        .chat-header-left .back-home { font-size: 0.75rem; padding: 4px 10px; }
+        .chat-header-left .back-home { font-size: 0.7rem; padding: 4px 10px; }
+        .theme-dot { width: 18px; height: 18px; }
     }
     @media (max-width: 480px) {
-        .chat-header-pro { padding: 10px 12px; }
-        .chat-header-left .model-icon { width: 28px; height: 28px; }
-        .chat-header-left .model-info h2 { font-size: 0.85rem; }
-        .chat-messages-pro { padding: 12px; }
+        .chat-header-pro { padding: 8px 12px; }
+        .chat-header-left .model-icon { width: 26px; height: 26px; }
+        .chat-header-left .model-info h2 { font-size: 0.8rem; }
+        .chat-messages-pro { padding: 10px; }
         .msg-pro .msg-bubble { padding: 10px 14px; font-size: 0.85rem; }
-        .chat-input-pro { padding: 8px 12px 12px; }
-        .chat-footer-pro { font-size: 0.6rem; }
+        .search-overlay .search-box { width: 95%; padding: 12px 16px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="chat-fullscreen">
+<div class="chat-fullscreen" id="chatApp">
+    <!-- Blossom Particles -->
+    <div class="blossom-container" id="blossomContainer"></div>
+
+    <!-- Header -->
     <div class="chat-header-pro">
         <div class="chat-header-left">
             <a href="/" class="back-home">← Home</a>
@@ -296,16 +469,38 @@
             </div>
         </div>
         <div class="chat-header-right">
-            <button class="header-btn" onclick="clearHistory()" title="Clear all messages">🗑️ Clear</button>
-            <button class="header-btn" onclick="exportChat()" title="Export chat">📥 Export</button>
+            <!-- Theme Selector -->
+            <div class="theme-selector">
+                <span style="color:#4a4a5a;font-size:0.7rem;margin-right:4px;">🎨</span>
+                <span class="theme-dot sandalwood" onclick="setTheme('sandalwood')" title="Sandalwood"></span>
+                <span class="theme-dot dracula" onclick="setTheme('dracula')" title="Dracula"></span>
+                <span class="theme-dot neon" onclick="setTheme('neon')" title="Neon"></span>
+                <span class="theme-dot rose" onclick="setTheme('rose')" title="Rose"></span>
+                <span class="theme-dot dark active" onclick="setTheme('dark')" title="Dark Default"></span>
+            </div>
+            <button class="header-btn search-toggle-btn" onclick="toggleSearch()">🔍</button>
+            <button class="header-btn" onclick="clearHistory()" title="Clear all messages">🗑️</button>
+            <button class="header-btn" onclick="exportChat()" title="Export chat">📥</button>
         </div>
     </div>
 
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-box">
+            <button class="search-close" onclick="toggleSearch()">✕</button>
+            <input type="text" id="searchInput" placeholder="Search messages..." oninput="searchMessages(this.value)">
+            <div class="search-results" id="searchResults">
+                <div style="color:#4a4a5a;text-align:center;padding:20px;font-size:0.85rem;">🔍 Type to search in chat</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
     <div class="chat-messages-pro" id="chatMessages">
         {% if messages %}
             {% for msg in messages %}
             <div class="msg-pro {{ msg.role }}">
-                <div class="msg-bubble">{{ msg.content }}</div>
+                <div class="msg-bubble">{{ msg.content | safe }}</div>
                 <div class="msg-time">{{ msg.time or 'Just now' }}</div>
             </div>
             {% endfor %}
@@ -319,6 +514,7 @@
         </div>
     </div>
 
+    <!-- Input -->
     <div class="chat-input-pro">
         <div class="chat-input-wrapper-pro">
             <input type="text" id="chatInput" placeholder="Type your message..." autofocus>
@@ -332,17 +528,121 @@
 </div>
 
 <script>
+    // ==========================================
+    // CONFIG
+    // ==========================================
     const modelId = '{{ model_id }}';
     const modelName = '{{ model.name }}';
     let isTyping = false;
+    let currentTheme = 'dark';
+    let allMessages = [];
 
+    // ==========================================
+    // CHERRY BLOSSOM PARTICLES
+    // ==========================================
+    function createBlossoms() {
+        const container = document.getElementById('blossomContainer');
+        const emojis = ['🌸', '🌸', '🌸', '🌸', '🌸', '🌺', '🌷', '🌹', '🌸', '🌸'];
+        for (let i = 0; i < 25; i++) {
+            const blossom = document.createElement('div');
+            blossom.className = 'blossom';
+            blossom.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            blossom.style.left = Math.random() * 100 + '%';
+            blossom.style.fontSize = (0.8 + Math.random() * 0.8) + 'rem';
+            blossom.style.opacity = 0.15 + Math.random() * 0.25;
+            blossom.style.animationDuration = (12 + Math.random() * 18) + 's';
+            blossom.style.animationDelay = (Math.random() * 20) + 's';
+            container.appendChild(blossom);
+        }
+    }
+    createBlossoms();
+
+    // ==========================================
+    // THEME SYSTEM
+    // ==========================================
+    function setTheme(theme) {
+        currentTheme = theme;
+        const app = document.getElementById('chatApp');
+        app.className = 'chat-fullscreen';
+        if (theme !== 'dark') {
+            app.classList.add('theme-' + theme);
+        }
+        document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+        document.querySelector(`.theme-dot.${theme}`).classList.add('active');
+        
+        // Update background
+        const bg = document.querySelector('.chat-fullscreen');
+        if (theme === 'sandalwood') bg.style.background = '#1a120e';
+        else if (theme === 'dracula') bg.style.background = '#1a1a2e';
+        else if (theme === 'neon') bg.style.background = '#0a0a0f';
+        else if (theme === 'rose') bg.style.background = '#1a0a0a';
+        else bg.style.background = '#0a0a0f';
+    }
+
+    // ==========================================
+    // SEARCH FUNCTION
+    // ==========================================
+    function toggleSearch() {
+        const overlay = document.getElementById('searchOverlay');
+        overlay.classList.toggle('active');
+        if (overlay.classList.contains('active')) {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResults').innerHTML = '<div style="color:#4a4a5a;text-align:center;padding:20px;font-size:0.85rem;">🔍 Type to search in chat</div>';
+            setTimeout(() => document.getElementById('searchInput').focus(), 300);
+        }
+    }
+
+    function searchMessages(query) {
+        const results = document.getElementById('searchResults');
+        if (!query.trim()) {
+            results.innerHTML = '<div style="color:#4a4a5a;text-align:center;padding:20px;font-size:0.85rem;">🔍 Type to search in chat</div>';
+            return;
+        }
+        const messages = document.querySelectorAll('.msg-pro .msg-bubble');
+        let found = 0;
+        let html = '';
+        messages.forEach((el, index) => {
+            const text = el.textContent.toLowerCase();
+            if (text.includes(query.toLowerCase())) {
+                found++;
+                const preview = el.textContent.substring(0, 60) + (el.textContent.length > 60 ? '...' : '');
+                html += `<div class="result-item" onclick="scrollToMessage(${index})">${preview}</div>`;
+            }
+        });
+        if (found === 0) {
+            html = '<div style="color:#6c6c80;text-align:center;padding:20px;font-size:0.85rem;">No messages found</div>';
+        }
+        results.innerHTML = html;
+    }
+
+    function scrollToMessage(index) {
+        const messages = document.querySelectorAll('.msg-pro');
+        if (messages[index]) {
+            messages[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            messages[index].style.background = 'rgba(255,107,107,0.05)';
+            setTimeout(() => {
+                messages[index].style.background = '';
+            }, 2000);
+            toggleSearch();
+        }
+    }
+
+    // ==========================================
+    // APPEND MESSAGE (with bold formatting)
+    // ==========================================
     function appendMessage(role, content) {
         const container = document.getElementById('chatMessages');
         const time = new Date().toLocaleTimeString();
         const msgDiv = document.createElement('div');
         msgDiv.className = `msg-pro ${role}`;
+        
+        // Format **bold** text
+        let formattedContent = content;
+        formattedContent = formattedContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formattedContent = formattedContent.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
         msgDiv.innerHTML = `
-            <div class="msg-bubble">${content}</div>
+            <div class="msg-bubble">${formattedContent}</div>
             <div class="msg-time">${time}</div>
         `;
         const welcome = container.querySelector('.msg-pro.bot:first-child');
@@ -351,8 +651,14 @@
         }
         container.appendChild(msgDiv);
         container.scrollTop = container.scrollHeight;
+        
+        // Store for search
+        allMessages.push({ role, content, element: msgDiv });
     }
 
+    // ==========================================
+    // SEND MESSAGE
+    // ==========================================
     document.getElementById('sendBtn').addEventListener('click', sendMessage);
     document.getElementById('chatInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') sendMessage();
@@ -400,6 +706,9 @@
         input.focus();
     }
 
+    // ==========================================
+    // CLEAR HISTORY
+    // ==========================================
     function clearHistory() {
         if (!confirm('Delete all chat history for this model?')) return;
         fetch(`/api/chat/history/${modelId}`, { method: 'DELETE' })
@@ -411,12 +720,19 @@
                         <div class="msg-pro bot">
                             <div class="msg-bubble">🗑️ Chat history cleared. Start fresh!</div>
                         </div>
+                        <div id="typingIndicator" class="msg-pro bot" style="display:none;">
+                            <div class="msg-bubble">⏳ <span class="typing-dots"></span></div>
+                        </div>
                     `;
+                    allMessages = [];
                 }
             })
             .catch(err => alert('Error clearing history: ' + err.message));
     }
 
+    // ==========================================
+    // EXPORT CHAT
+    // ==========================================
     function exportChat() {
         const messages = document.querySelectorAll('.msg-pro');
         let text = `=== ${modelName} Chat Export ===\n\n`;
@@ -435,6 +751,24 @@
         URL.revokeObjectURL(url);
     }
 
+    // ==========================================
+    // KEYBOARD SHORTCUTS
+    // ==========================================
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            toggleSearch();
+        }
+        if (e.key === 'Escape') {
+            if (document.getElementById('searchOverlay').classList.contains('active')) {
+                toggleSearch();
+            }
+        }
+    });
+
+    // ==========================================
+    // FOCUS INPUT ON LOAD
+    // ==========================================
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('chatInput').focus();
     });
