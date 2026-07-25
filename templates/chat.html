@@ -26,7 +26,7 @@
         transition: background 0.3s ease;
     }
 
-    /* ===== PARTICLES (Cherry Blossom + Sticker) ===== */
+    /* ===== PARTICLES ===== */
     .blossom-container {
         position: fixed;
         top: 0;
@@ -54,12 +54,6 @@
         opacity: 0.25;
         animation: fall-sticker linear infinite;
     }
-    .blossom.sticker img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        display: block;
-    }
     @keyframes fall {
         0% { transform: translateY(-10vh) rotate(0deg) scale(0.8); opacity: 0.4; }
         100% { transform: translateY(110vh) rotate(720deg) scale(1.2); opacity: 0.1; }
@@ -82,6 +76,7 @@
         z-index: 10;
         flex-wrap: wrap;
         gap: 6px;
+        position: relative;
     }
     .chat-header-left {
         display: flex;
@@ -97,6 +92,8 @@
         background: rgba(255,255,255,0.03);
         transition: all 0.3s ease;
         font-weight: 500;
+        z-index: 15;
+        position: relative;
     }
     .chat-header-left .back-home:hover {
         background: rgba(255,255,255,0.06);
@@ -109,6 +106,8 @@
         object-fit: contain;
         background: rgba(255,255,255,0.03);
         padding: 4px;
+        z-index: 15;
+        position: relative;
     }
     .chat-header-left .model-info h2 {
         font-family: 'Orbitron', sans-serif;
@@ -138,12 +137,14 @@
         50% { opacity: 0.3; }
     }
 
-    /* ===== HEADER RIGHT ===== */
+    /* ===== HEADER RIGHT - FIXED Z-INDEX ===== */
     .chat-header-right {
         display: flex;
         align-items: center;
         gap: 8px;
         flex-wrap: wrap;
+        z-index: 50;
+        position: relative;
     }
     .chat-header-right .header-btn {
         padding: 6px 14px;
@@ -159,6 +160,8 @@
         display: flex;
         align-items: center;
         gap: 4px;
+        position: relative;
+        z-index: 55;
     }
     .chat-header-right .header-btn:hover {
         background: rgba(255,255,255,0.06);
@@ -169,18 +172,33 @@
         color: #ef4444;
     }
 
-    /* ===== SEARCH BUTTON ===== */
+    /* ===== SEARCH BUTTON - HIGHLY VISIBLE & CLICKABLE ===== */
     .search-toggle-btn {
-        background: rgba(37,99,235,0.1) !important;
-        border: 1px solid rgba(37,99,235,0.15) !important;
+        background: rgba(37,99,235,0.15) !important;
+        border: 1px solid rgba(37,99,235,0.25) !important;
         color: #60a5fa !important;
-        font-weight: 600 !important;
-        padding: 6px 16px !important;
+        font-weight: 700 !important;
+        padding: 8px 18px !important;
+        border-radius: 10px !important;
+        cursor: pointer !important;
+        z-index: 60 !important;
+        position: relative !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 0 20px rgba(37,99,235,0.05) !important;
     }
     .search-toggle-btn:hover {
-        background: rgba(37,99,235,0.2) !important;
-        border-color: rgba(37,99,235,0.3) !important;
+        background: rgba(37,99,235,0.25) !important;
+        border-color: rgba(37,99,235,0.4) !important;
         color: #93bbfc !important;
+        transform: scale(1.03);
+        box-shadow: 0 0 30px rgba(37,99,235,0.15) !important;
+    }
+    .search-toggle-btn:active {
+        transform: scale(0.95);
+    }
+    .search-toggle-btn .search-icon {
+        font-size: 1rem;
+        margin-right: 2px;
     }
 
     /* ===== THEME SELECTOR ===== */
@@ -192,6 +210,8 @@
         padding: 4px 10px 4px 6px;
         border-radius: 20px;
         border: 1px solid rgba(255,255,255,0.04);
+        z-index: 55;
+        position: relative;
     }
     .theme-selector .theme-label {
         color: #4a4a5a;
@@ -207,6 +227,8 @@
         border: 2px solid rgba(255,255,255,0.08);
         cursor: pointer;
         transition: all 0.3s ease;
+        position: relative;
+        z-index: 55;
     }
     .theme-dot:hover {
         transform: scale(1.15);
@@ -362,6 +384,8 @@
         transition: all 0.3s ease;
         font-family: 'Rajdhani', sans-serif;
         font-size: 0.9rem;
+        position: relative;
+        z-index: 5;
     }
     .chat-input-wrapper-pro .send-btn-pro:hover {
         transform: scale(1.02);
@@ -387,14 +411,14 @@
     /* ===== SEARCH OVERLAY ===== */
     .search-overlay {
         display: none;
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.6);
-        backdrop-filter: blur(8px);
-        z-index: 20;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(12px);
+        z-index: 9999;
         justify-content: center;
         align-items: flex-start;
         padding-top: 80px;
@@ -404,59 +428,66 @@
         animation: fadeIn 0.3s ease;
     }
     .search-overlay .search-box {
-        background: rgba(255,255,255,0.05);
-        border-radius: 16px;
-        padding: 16px 20px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 20px 24px;
         width: 90%;
-        max-width: 500px;
+        max-width: 550px;
         border: 1px solid rgba(255,255,255,0.08);
         backdrop-filter: blur(20px);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.6);
     }
     .search-overlay .search-box input {
         width: 100%;
-        padding: 12px 16px;
+        padding: 14px 18px;
         border: none;
-        border-radius: 10px;
+        border-radius: 12px;
         background: rgba(0,0,0,0.4);
         color: #fff;
-        font-size: 1rem;
+        font-size: 1.05rem;
         font-family: 'Rajdhani', sans-serif;
         outline: none;
-        border: 1px solid rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.06);
     }
     .search-overlay .search-box input:focus {
         border-color: rgba(37,99,235,0.3);
+        box-shadow: 0 0 30px rgba(37,99,235,0.05);
     }
     .search-overlay .search-close {
         color: #a8a8b3;
-        font-size: 1.2rem;
+        font-size: 1.4rem;
         cursor: pointer;
         background: none;
         border: none;
         float: right;
         transition: all 0.3s ease;
+        padding: 4px 8px;
+        border-radius: 8px;
     }
     .search-overlay .search-close:hover {
         color: #fff;
+        background: rgba(255,255,255,0.05);
         transform: rotate(90deg);
     }
     .search-overlay .search-results {
         margin-top: 16px;
-        max-height: 300px;
+        max-height: 350px;
         overflow-y: auto;
         color: #a8a8b3;
         font-size: 0.9rem;
     }
     .search-overlay .search-results .result-item {
-        padding: 8px 12px;
-        border-radius: 8px;
+        padding: 10px 14px;
+        border-radius: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
         margin-bottom: 4px;
+        border-left: 2px solid transparent;
     }
     .search-overlay .search-results .result-item:hover {
-        background: rgba(255,255,255,0.05);
+        background: rgba(37,99,235,0.08);
         color: #fff;
+        border-left-color: #2563eb;
     }
 
     @keyframes fadeInUp {
@@ -473,7 +504,7 @@
         .chat-header-pro { padding: 10px 16px; }
         .chat-header-right .header-btn { font-size: 0.7rem; padding: 5px 10px; }
         .theme-dot { width: 18px; height: 18px; }
-        .search-toggle-btn { padding: 5px 12px !important; }
+        .search-toggle-btn { padding: 6px 14px !important; font-size: 0.75rem !important; }
     }
     @media (max-width: 768px) {
         .chat-header-pro { padding: 8px 12px; flex-wrap: wrap; gap: 4px; }
@@ -487,8 +518,8 @@
         .chat-header-left .back-home { font-size: 0.7rem; padding: 4px 10px; }
         .theme-dot { width: 16px; height: 16px; }
         .theme-selector .theme-label { display: none; }
-        .search-toggle-btn { padding: 4px 10px !important; font-size: 0.7rem !important; }
-        .search-overlay .search-box { width: 95%; padding: 12px 16px; }
+        .search-toggle-btn { padding: 4px 12px !important; font-size: 0.7rem !important; }
+        .search-overlay .search-box { width: 95%; padding: 16px; }
         .blossom.sticker { width: 22px; height: 22px; }
     }
     @media (max-width: 480px) {
@@ -501,15 +532,18 @@
         .chat-header-right .header-btn { font-size: 0.6rem; padding: 3px 6px; }
         .theme-selector { padding: 2px 6px; gap: 3px; }
         .theme-dot { width: 14px; height: 14px; border-width: 1px; }
-        .search-toggle-btn { padding: 3px 8px !important; font-size: 0.6rem !important; }
+        .search-toggle-btn { padding: 3px 10px !important; font-size: 0.6rem !important; }
         .blossom.sticker { width: 18px; height: 18px; }
+        .search-overlay { padding-top: 60px; }
+        .search-overlay .search-box { padding: 14px; }
+        .search-overlay .search-box input { font-size: 0.9rem; padding: 10px 14px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="chat-fullscreen" id="chatApp">
-    <!-- Blossom + Sticker Particles -->
+    <!-- Particles -->
     <div class="blossom-container" id="blossomContainer"></div>
 
     <!-- Header -->
@@ -523,6 +557,7 @@
             </div>
         </div>
         <div class="chat-header-right">
+            <!-- Theme Selector -->
             <div class="theme-selector">
                 <span class="theme-label">🎨</span>
                 <span class="theme-dot sandalwood" onclick="setTheme('sandalwood')" title="Sandalwood"></span>
@@ -531,8 +566,9 @@
                 <span class="theme-dot rose" onclick="setTheme('rose')" title="Rose"></span>
                 <span class="theme-dot dark active" onclick="setTheme('dark')" title="Dark Default"></span>
             </div>
-            <button class="header-btn search-toggle-btn" onclick="toggleSearch()">
-                <span>🔍</span> Search
+            <!-- SEARCH BUTTON - HIGHLY CLICKABLE -->
+            <button class="header-btn search-toggle-btn" onclick="toggleSearch()" id="searchBtn">
+                <span class="search-icon">🔍</span> Search
             </button>
             <button class="header-btn" onclick="clearHistory()" title="Clear all messages">🗑️</button>
             <button class="header-btn" onclick="exportChat()" title="Export chat">📥</button>
@@ -593,13 +629,11 @@
     let allMessages = [];
 
     // ==========================================
-    // CHERRY BLOSSOM + STICKER PARTICLES
+    // PARTICLES (Blossom + Sticker)
     // ==========================================
     function createParticles() {
         const container = document.getElementById('blossomContainer');
         const emojis = ['🌸', '🌸', '🌸', '🌸', '🌸', '🌺', '🌷', '🌹', '🌸', '🌸'];
-        
-        // Cherry blossoms (15)
         for (let i = 0; i < 15; i++) {
             const blossom = document.createElement('div');
             blossom.className = 'blossom';
@@ -611,8 +645,6 @@
             blossom.style.animationDelay = (Math.random() * 20) + 's';
             container.appendChild(blossom);
         }
-
-        // Sticker logo particles (8)
         const stickerUrl = '/static/images/sticker.png';
         for (let i = 0; i < 8; i++) {
             const sticker = document.createElement('div');
@@ -630,18 +662,15 @@
     createParticles();
 
     // ==========================================
-    // THEME SYSTEM
+    // THEME
     // ==========================================
     function setTheme(theme) {
         currentTheme = theme;
         const app = document.getElementById('chatApp');
         app.className = 'chat-fullscreen';
-        if (theme !== 'dark') {
-            app.classList.add('theme-' + theme);
-        }
+        if (theme !== 'dark') app.classList.add('theme-' + theme);
         document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
         document.querySelector(`.theme-dot.${theme}`).classList.add('active');
-        
         const bg = document.querySelector('.chat-fullscreen');
         if (theme === 'sandalwood') bg.style.background = '#1a120e';
         else if (theme === 'dracula') bg.style.background = '#1a1a2e';
@@ -651,7 +680,7 @@
     }
 
     // ==========================================
-    // SEARCH
+    // SEARCH - FIXED
     // ==========================================
     function toggleSearch() {
         const overlay = document.getElementById('searchOverlay');
@@ -659,7 +688,7 @@
         if (overlay.classList.contains('active')) {
             document.getElementById('searchInput').value = '';
             document.getElementById('searchResults').innerHTML = '<div style="color:#4a4a5a;text-align:center;padding:20px;font-size:0.85rem;">🔍 Type to search in chat</div>';
-            setTimeout(() => document.getElementById('searchInput').focus(), 300);
+            setTimeout(() => document.getElementById('searchInput').focus(), 200);
         }
     }
 
@@ -706,11 +735,9 @@
         const time = new Date().toLocaleTimeString();
         const msgDiv = document.createElement('div');
         msgDiv.className = `msg-pro ${role}`;
-        
         let formattedContent = content;
         formattedContent = formattedContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         formattedContent = formattedContent.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        
         msgDiv.innerHTML = `
             <div class="msg-bubble">${formattedContent}</div>
             <div class="msg-time">${time}</div>
